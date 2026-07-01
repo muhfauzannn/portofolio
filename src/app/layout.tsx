@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Space_Grotesk, Inter, Caveat, Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { TransitionProvider } from "@/components/motion/page-transition";
 import "./globals.css";
 
 // Display / headings — stand-in for "Haffer XH"
@@ -46,7 +47,9 @@ export default function RootLayout({
       className={`${spaceGrotesk.variable} ${inter.variable} ${caveat.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
-        <TooltipProvider delayDuration={150}>{children}</TooltipProvider>
+        <TooltipProvider delayDuration={150}>
+          <TransitionProvider>{children}</TransitionProvider>
+        </TooltipProvider>
         <Toaster />
       </body>
     </html>

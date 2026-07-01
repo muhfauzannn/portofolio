@@ -6,6 +6,7 @@ import { ArrowUpRight, MoonStar, Sparkles, Sun, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { TransitionLink } from "@/components/motion/transition-link";
 
 type NavLink = { label: string; href: string; badge?: string; meta?: string };
 
@@ -17,9 +18,9 @@ const PRODUCTS: NavLink[] = [
 ];
 
 const EXPLORE: NavLink[] = [
-  { label: "Showcase", href: "#showcase" },
-  { label: "Collection", href: "#collection", meta: "216" },
-  { label: "Pricing", href: "#pricing" },
+  { label: "Work", href: "/work", meta: "12" },
+  { label: "About", href: "/about" },
+  { label: "Contact", href: "/contact" },
 ];
 
 export function SiteNav() {
@@ -97,15 +98,15 @@ export function SiteNav() {
             Menu
           </Button>
 
-          <a
-            href="#top"
+          <TransitionLink
+            href="/"
             className="flex items-center gap-2 font-heading font-bold"
           >
             <span className="grid size-7 place-items-center rounded-full bg-brand-lime text-brand-lime-foreground">
               <Sparkles className="size-4" />
             </span>
             <span className="tracking-tight">Toolkit</span>
-          </a>
+          </TransitionLink>
 
           <div className="flex items-center gap-1.5">
             <Button
@@ -117,8 +118,8 @@ export function SiteNav() {
             >
               {dark ? <Sun /> : <MoonStar />}
             </Button>
-            <Button size="pill" className="hidden sm:inline-flex">
-              Get started
+            <Button size="pill" className="hidden sm:inline-flex" asChild>
+              <TransitionLink href="/contact">Get started</TransitionLink>
             </Button>
           </div>
         </nav>
@@ -176,30 +177,34 @@ function MenuColumn({ title, links }: { title: string; links: NavLink[] }) {
         {title}
       </p>
       <ul>
-        {links.map((link) => (
-          <li key={link.label}>
-            <a
-              href={link.href}
-              className="group flex items-center justify-between gap-2 rounded-xl px-2 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
-            >
-              <span className="flex items-center gap-2">
-                {link.label}
-                {link.badge ? (
-                  <Badge variant="purple" className="text-[0.65rem]">
-                    {link.badge}
-                  </Badge>
-                ) : null}
-              </span>
-              {link.meta ? (
-                <span className="text-xs text-muted-foreground">
-                  {link.meta}
+        {links.map((link) => {
+          // Internal routes animate via the page transition; "#" anchors don't.
+          const Cmp = link.href.startsWith("/") ? TransitionLink : "a";
+          return (
+            <li key={link.label}>
+              <Cmp
+                href={link.href}
+                className="group flex items-center justify-between gap-2 rounded-xl px-2 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+              >
+                <span className="flex items-center gap-2">
+                  {link.label}
+                  {link.badge ? (
+                    <Badge variant="purple" className="text-[0.65rem]">
+                      {link.badge}
+                    </Badge>
+                  ) : null}
                 </span>
-              ) : (
-                <ArrowUpRight className="size-4 -translate-x-1 text-muted-foreground opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
-              )}
-            </a>
-          </li>
-        ))}
+                {link.meta ? (
+                  <span className="text-xs text-muted-foreground">
+                    {link.meta}
+                  </span>
+                ) : (
+                  <ArrowUpRight className="size-4 -translate-x-1 text-muted-foreground opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
+                )}
+              </Cmp>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
