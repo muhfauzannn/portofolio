@@ -1,26 +1,238 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================================
+   Creative Developer Toolkit — Design System (V3)
+   Tokens derived from DESIGN.md
+   ============================================================ */
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  /* Fonts — Haffer XH → Space Grotesk, Brisa Pro → Caveat */
+  --font-sans: var(--font-body);
+  --font-heading: var(--font-display);
+  --font-display: var(--font-display);
+  --font-script: var(--font-script);
+  --font-mono: var(--font-geist-mono);
+
+  /* Brand palette (DESIGN.md §4) */
+  --color-brand-cream: var(--brand-cream);
+  --color-brand-charcoal: var(--brand-charcoal);
+  --color-brand-lime: var(--brand-lime);
+  --color-brand-lime-foreground: var(--brand-lime-foreground);
+  --color-brand-purple: var(--brand-purple);
+  --color-brand-purple-foreground: var(--brand-purple-foreground);
+
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+
+  /* Border-radius hierarchy (DESIGN.md §2)
+     base --radius = 0.5rem (8px) → the "crisp" content-card tier.
+     tier C (crisp 6–8px)  → radius-md / radius-lg
+     tier B (medium 12–16px) → radius-2xl (~14px)
+     tier A (pill 9999px)  → rounded-full */
+  --radius-sm: calc(var(--radius) * 0.625); /* ~5px  */
+  --radius-md: calc(var(--radius) * 0.8); /* ~6px  */
+  --radius-lg: var(--radius); /* 8px   crisp cards */
+  --radius-xl: calc(var(--radius) * 1.5); /* 12px  */
+  --radius-2xl: calc(var(--radius) * 1.75); /* 14px  medium blocks */
+  --radius-3xl: calc(var(--radius) * 2.25); /* 18px  */
+  --radius-4xl: calc(var(--radius) * 3); /* 24px  */
+
+  /* Marquee (magicui) — horizontal-scroll / community sections */
+  --animate-marquee: marquee var(--duration) infinite linear;
+  --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(calc(-100% - var(--gap)));
+    }
+  }
+  @keyframes marquee-vertical {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(calc(-100% - var(--gap)));
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+:root {
+  --radius: 0.5rem;
+
+  /* Brand palette */
+  --brand-cream: #f7f7f7;
+  --brand-charcoal: #1a1a1a;
+  --brand-lime: #84ff44;
+  --brand-lime-foreground: #10240a;
+  --brand-purple: #6544ff;
+  --brand-purple-foreground: #ffffff;
+
+  /* Semantic mapping — light (off-white base) */
+  --background: #f7f7f7;
+  --foreground: #1a1a1a;
+  --card: #ffffff;
+  --card-foreground: #1a1a1a;
+  --popover: #ffffff;
+  --popover-foreground: #1a1a1a;
+
+  /* Primary CTA = Electric Lime */
+  --primary: #84ff44;
+  --primary-foreground: #10240a;
+
+  /* Secondary = Deep Charcoal (dark solid buttons/containers) */
+  --secondary: #1a1a1a;
+  --secondary-foreground: #f7f7f7;
+
+  --muted: #ececec;
+  --muted-foreground: #6b6b6b;
+
+  /* Accent = subtle indigo tint for hovers/highlights */
+  --accent: #ece8ff;
+  --accent-foreground: #2a1d6b;
+
+  --destructive: #e5484d;
+  --border: #e6e6e6;
+  --input: #dcdcdc;
+  --ring: #6544ff;
+
+  --chart-1: #84ff44;
+  --chart-2: #6544ff;
+  --chart-3: #1a1a1a;
+  --chart-4: #b7a6ff;
+  --chart-5: #c9ff9e;
+
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1a1a1a;
+  --sidebar-primary: #6544ff;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #ece8ff;
+  --sidebar-accent-foreground: #2a1d6b;
+  --sidebar-border: #e6e6e6;
+  --sidebar-ring: #6544ff;
+}
+
+.dark {
+  /* Deep-charcoal surfaces — used for nav, footer, dark containers */
+  --background: #1a1a1a;
+  --foreground: #f7f7f7;
+  --card: #232323;
+  --card-foreground: #f7f7f7;
+  --popover: #232323;
+  --popover-foreground: #f7f7f7;
+
+  --primary: #84ff44;
+  --primary-foreground: #10240a;
+
+  --secondary: #2e2e2e;
+  --secondary-foreground: #f7f7f7;
+
+  --muted: #2b2b2b;
+  --muted-foreground: #a5a5a5;
+
+  --accent: #2a2247;
+  --accent-foreground: #d9d0ff;
+
+  --destructive: #ff6169;
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 16%);
+  --ring: #84ff44;
+
+  --chart-1: #84ff44;
+  --chart-2: #8a6bff;
+  --chart-3: #f7f7f7;
+  --chart-4: #b7a6ff;
+  --chart-5: #c9ff9e;
+
+  --sidebar: #1a1a1a;
+  --sidebar-foreground: #f7f7f7;
+  --sidebar-primary: #84ff44;
+  --sidebar-primary-foreground: #10240a;
+  --sidebar-accent: #2a2247;
+  --sidebar-accent-foreground: #d9d0ff;
+  --sidebar-border: oklch(1 0 0 / 12%);
+  --sidebar-ring: #84ff44;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "ss01", "cv01";
+  }
+  html {
+    @apply font-sans;
+  }
+  /* Headlines use the display grotesque with tight, bold treatment */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-heading font-semibold tracking-tight;
+  }
+}
+
+@layer utilities {
+  /* Brisa-Pro-style handwritten accent (DESIGN.md §3) */
+  .font-script {
+    font-family: var(--font-script), cursive;
+  }
+  /* Oversized faded background label (DESIGN.md §5 — Section 2) */
+  .text-outline {
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--foreground);
+  }
+  /* Subtle brutalist grid backdrop */
+  .bg-grid {
+    background-image: linear-gradient(
+        to right,
+        color-mix(in oklch, var(--foreground) 6%, transparent) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        to bottom,
+        color-mix(in oklch, var(--foreground) 6%, transparent) 1px,
+        transparent 1px
+      );
+    background-size: 44px 44px;
+  }
 }
