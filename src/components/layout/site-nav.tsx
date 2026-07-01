@@ -20,6 +20,7 @@ const PRODUCTS: NavLink[] = [
 const EXPLORE: NavLink[] = [
   { label: "Work", href: "/work", meta: "12" },
   { label: "About", href: "/about" },
+  { label: "Skills", href: "/skills" },
   { label: "Contact", href: "/contact" },
 ];
 

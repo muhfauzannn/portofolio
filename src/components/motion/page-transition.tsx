@@ -28,6 +28,12 @@ export const usePageTransition = () => React.useContext(TransitionCtx);
 // Staggered color bands — charcoal / purple / lime / cream (DESIGN.md palette).
 const COLUMNS = [
   "bg-brand-charcoal",
+  "bg-brand-charcoal",
+  "bg-brand-charcoal",
+  "bg-brand-charcoal",
+  "bg-brand-charcoal",
+  "bg-brand-charcoal",
+  "bg-brand-charcoal",
 ];
 
 const EASE = "power4.inOut";

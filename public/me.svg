@@ -1,0 +1,6 @@
+<svg width="800" height="1000" viewBox="0 0 800 1000" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Portrait placeholder">
+  <rect width="800" height="1000" fill="#1A1A1A"/>
+  <circle cx="400" cy="400" r="150" fill="#D6F45B"/>
+  <path d="M180 1000c0-160 98-280 220-280s220 120 220 280H180z" fill="#F3EDE1"/>
+  <text x="400" y="940" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="34" fill="#F3EDE1" opacity="0.7">Replace public/me.svg</text>
+</svg>

@@ -1,11 +1,11 @@
-import { PlaceholderPage } from "@/features/placeholder";
+import type { Metadata } from "next";
+import { AboutPage } from "@/features/about";
+
+export const metadata: Metadata = {
+  title: "About — Muhammad Fauzan",
+  description: "About Muhammad Fauzan — creative developer, skills, and tools.",
+};
 
 export default function AboutRoute() {
-  return (
-    <PlaceholderPage
-      eyebrow="Nice to meet you"
-      title="About"
-      description="A mockup route to test page transitions — the story goes here soon."
-    />
-  );
+  return <AboutPage />;
 }
