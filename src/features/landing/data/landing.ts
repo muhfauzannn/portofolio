@@ -29,6 +29,39 @@ export const ASSETS: AssetItem[] = [
   { name: "Buttons", tag: "UI", icon: Wand2, tilt: "6deg" },
 ];
 
+export type Photo = {
+  /** Drop the file in /public and set e.g. "/me.jpg". Empty → shows a placeholder. */
+  src?: string;
+  alt: string;
+  caption: string;
+};
+
+/** Stacked Polaroids in the hero — add, remove or reorder freely. */
+export const PHOTOS: Photo[] = [
+  { src: "", alt: "Portrait one", caption: "That's me" },
+  { src: "", alt: "Portrait two", caption: "On set" },
+  { src: "", alt: "Portrait three", caption: "IRL" },
+];
+
+export type ShowcaseItem = {
+  title: string;
+  icon: LucideIcon;
+  /** Screen tint — maps to a brand token in the component. */
+  tone: "charcoal" | "cream" | "purple" | "lime";
+  /** Resting rotation so the reel feels hand-scattered. */
+  tilt: string;
+};
+
+/** Tilted "screen" reel that scrolls infinitely under the hero. */
+export const SHOWCASE: ShowcaseItem[] = [
+  { title: "Logo Wall Cycle", icon: Boxes, tone: "charcoal", tilt: "-5deg" },
+  { title: "Falling 2D Objects", icon: Sparkles, tone: "cream", tilt: "4deg" },
+  { title: "3D Image Carousel", icon: Layers, tone: "charcoal", tilt: "-3deg" },
+  { title: "Momentum Hover", icon: MousePointer2, tone: "lime", tilt: "5deg" },
+  { title: "Pixelate Render", icon: Wand2, tone: "purple", tilt: "-4deg" },
+  { title: "Face Follow Cursor", icon: Zap, tone: "cream", tilt: "3deg" },
+];
+
 export type VaultItem = {
   name: string;
   meta: string;
