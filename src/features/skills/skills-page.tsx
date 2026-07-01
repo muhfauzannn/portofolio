@@ -18,9 +18,9 @@ export function SkillsPage() {
       <MagneticCursor />
       <SiteNav />
 
-      <main className="flex-1">
+      <main className="flex flex-col gap-30 max-md:gap-20">
         {/* GitHub contributions */}
-        <section className="px-4 pb-28 sm:pb-36">
+        <section className="px-4">
           <div className="mx-auto max-w-4xl">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
@@ -60,7 +60,7 @@ export function SkillsPage() {
           </div>
         </section>
         {/* Tools */}
-        <section className="overflow-hidden px-4 pt-16 pb-24 sm:pt-24 sm:pb-32">
+        <section className="overflow-hidden px-4">
           <div className="mx-auto max-w-4xl text-center">
             <Reveal>
               <p className="font-script text-2xl text-brand-purple sm:text-3xl">

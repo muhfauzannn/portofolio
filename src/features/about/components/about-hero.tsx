@@ -24,7 +24,7 @@ export function AboutHero() {
   const { eyebrow, photo, paragraphs, education } = ABOUT;
 
   return (
-    <section className="px-4 pt-16 pb-20 sm:pt-24">
+    <section className="px-4">
       <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-[0.5fr_1.5fr] lg:gap-16">
         {/* Photo — offset brand block behind gives it a brutalist frame. */}
         <Reveal className="relative mx-auto w-full max-w-[240px] lg:mx-0">

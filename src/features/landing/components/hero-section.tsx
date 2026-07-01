@@ -3,7 +3,7 @@
 import * as React from "react";
 import type { CSSProperties } from "react";
 import Image from "next/image";
-import { Asterisk, ImageIcon } from "lucide-react";
+import { ImageIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -28,33 +28,25 @@ const TONE: Record<ShowcaseItem["tone"], string> = {
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden px-4 pt-16 pb-24 sm:pt-24">
+    <section className="relative overflow-hidden px-4 flex min-h-screen flex-col justify-center">
       <div className="bg-grid pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(ellipse_at_center,black,transparent_72%)]" />
 
       <div className="mx-auto grid max-w-6xl items-center gap-10 text-center lg:grid-cols-[1.4fr_1fr] lg:gap-12 lg:text-left">
         <div>
-          <Reveal delay={60}>
-            <h1 className="font-heading text-5xl leading-[0.95] font-bold tracking-tighter text-balance sm:text-7xl">
-              The creative
-              <span className="relative mx-3 inline-flex items-center">
-                <Asterisk className="size-10 animate-spin text-brand-purple [animation-duration:6s] sm:size-14" />
-              </span>
-              developer
-              <br />
-              <span className="text-brand-purple">toolkit</span> that ships.
+          <Reveal delay={60} className="flex flex-col gap-0">
+            <p className="font-script text-4xl max-md:text-2xl">
+              Hi, I&apos;m{" "}
+            </p>
+            <h1 className="font-heading 
+            
+            
+            text-brand-purple text-4xl font-normal sm:text-7xl">
+              Muhammad Fauzan
             </h1>
-          </Reveal>
-
-          <Reveal delay={120}>
-            <p className="mx-auto mt-6 max-w-xl text-base text-muted-foreground text-pretty sm:text-lg lg:mx-0">
-              Production-ready components, motion systems and 3D assets. Built on
-              a strict{" "}
-              <span className="inline-flex flex-wrap gap-1.5 align-middle">
-                <Badge variant="outline">Webflow</Badge>
-                <Badge variant="outline">HTML</Badge>
-                <Badge variant="outline">Icons</Badge>
-              </span>{" "}
-              foundation.
+            <p className="mx-auto font-heading mt-6 max-w-xl text-base text-muted-foreground text-pretty sm:text-lg lg:mx-0">
+              Welcome to my website portofolio, where I showcase my skills and
+              projects as a web developer. Explore my work and get to know me
+              better!
             </p>
           </Reveal>
         </div>
@@ -67,7 +59,7 @@ export function HeroSection() {
 
       {/* Infinite reel of tilted showcase screens (§2C) */}
       <Reveal delay={220}>
-        <div className="relative mt-16 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
+        <div className="relative mt-16">
           <Marquee
             pauseOnHover
             style={{ "--gap": "2.5rem" } as CSSProperties}
@@ -154,7 +146,9 @@ function PhotoStack() {
             type="button"
             tabIndex={isFront ? 0 : -1}
             aria-label={
-              isFront ? "Drag or tap to shuffle photos" : `Photo: ${photo.caption}`
+              isFront
+                ? "Drag or tap to shuffle photos"
+                : `Photo: ${photo.caption}`
             }
             onKeyDown={(e) => {
               if (isFront && (e.key === "Enter" || e.key === " ")) {
@@ -178,9 +172,7 @@ function PhotoStack() {
             }}
             className={cn(
               "absolute inset-0 touch-none rounded-sm bg-brand-cream p-3 pb-10 text-left shadow-2xl shadow-foreground/20 ring-1 ring-foreground/10",
-              isFront
-                ? "cursor-grab active:cursor-grabbing"
-                : "cursor-pointer",
+              isFront ? "cursor-grab active:cursor-grabbing" : "cursor-pointer",
               dragging && isFront
                 ? "transition-none"
                 : "transition-[transform,opacity] duration-300 ease-out",

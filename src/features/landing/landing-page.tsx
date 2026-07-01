@@ -14,7 +14,7 @@ export function LandingPage() {
       <MagneticCursor />
       <SiteNav />
 
-      <main className="flex-1">
+      <main className="flex flex-col gap-30 max-md:gap-20">
         <HeroSection />
         <AboutPage />
         <SkillsPage />
