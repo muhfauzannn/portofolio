@@ -19,6 +19,46 @@ export function SkillsPage() {
       <SiteNav />
 
       <main className="flex-1">
+        {/* GitHub contributions */}
+        <section className="px-4 pb-28 sm:pb-36">
+          <div className="mx-auto max-w-4xl">
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <Reveal>
+                  <p className="font-script text-2xl text-brand-purple sm:text-3xl">
+                    A year of building
+                  </p>
+                </Reveal>
+                <Reveal delay={80}>
+                  <h2 className="mt-1 font-heading text-3xl font-bold tracking-tighter text-balance sm:text-4xl">
+                    GitHub Contributions
+                  </h2>
+                </Reveal>
+              </div>
+
+              <Reveal delay={120}>
+                <Button size="pill" variant={"charcoal"} asChild>
+                  <a
+                    href={`https://github.com/${GITHUB_USERNAME}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <SiGithub />
+                    Visit my GitHub
+                    <ArrowUpRight className="size-4" />
+                  </a>
+                </Button>
+              </Reveal>
+            </div>
+
+            <Reveal
+              delay={160}
+              className="mt-8 rounded-2xl border border-border bg-card p-5 sm:p-7"
+            >
+              <GithubContributions username={GITHUB_USERNAME} />
+            </Reveal>
+          </div>
+        </section>
         {/* Tools */}
         <section className="overflow-hidden px-4 pt-16 pb-24 sm:pt-24 sm:pb-32">
           <div className="mx-auto max-w-4xl text-center">
@@ -40,47 +80,8 @@ export function SkillsPage() {
             </Reveal>
           </div>
 
-          <SkillsFan />
-        </section>
-
-        {/* GitHub contributions */}
-        <section className="px-4 pb-28 sm:pb-36">
-          <div className="mx-auto max-w-4xl">
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <div>
-                <Reveal>
-                  <p className="font-script text-2xl text-brand-purple sm:text-3xl">
-                    A year of building
-                  </p>
-                </Reveal>
-                <Reveal delay={80}>
-                  <h2 className="mt-1 font-heading text-3xl font-bold tracking-tighter text-balance sm:text-4xl">
-                    GitHub Contributions
-                  </h2>
-                </Reveal>
-              </div>
-
-              <Reveal delay={120}>
-                <Button size="pill" asChild>
-                  <a
-                    href={`https://github.com/${GITHUB_USERNAME}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <SiGithub />
-                    Visit my GitHub
-                    <ArrowUpRight className="size-4" />
-                  </a>
-                </Button>
-              </Reveal>
-            </div>
-
-            <Reveal
-              delay={160}
-              className="mt-8 rounded-2xl border border-border bg-card p-5 sm:p-7"
-            >
-              <GithubContributions username={GITHUB_USERNAME} />
-            </Reveal>
+          <div className="mx-auto max-w-6xl">
+            <SkillsFan />
           </div>
         </section>
       </main>

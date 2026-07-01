@@ -43,7 +43,13 @@ export function SiteNav() {
   }, [open]);
 
   return (
-    <header className="sticky top-4 z-50 px-4">
+    <>
+      {/* Spacer reserves the collapsed nav's height so switching the header to
+          fixed keeps the page layout identical — and the mega-menu can now
+          unfurl without pushing anything down. */}
+      <div aria-hidden className="h-14.5 shrink-0" />
+
+      <header className="fixed inset-x-0 top-4 z-50 px-4">
       {/* Backdrop — click anywhere to collapse the expanded menu. */}
       <button
         type="button"
@@ -168,6 +174,7 @@ export function SiteNav() {
         </div>
       </div>
     </header>
+    </>
   );
 }
 

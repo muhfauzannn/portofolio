@@ -1,6 +1,8 @@
 import { SiteNav } from "@/components/layout/site-nav";
 import { MagneticCursor } from "@/components/motion/magnetic-cursor";
 import { HeroSection } from "@/features/landing/components/hero-section";
+import { AboutPage } from "../about";
+import { SkillsPage } from "../skills";
 
 /**
  * Landing feature — composes the page from self-contained sections.
@@ -14,6 +16,8 @@ export function LandingPage() {
 
       <main className="flex-1">
         <HeroSection />
+        <AboutPage />
+        <SkillsPage />
       </main>
     </div>
   );

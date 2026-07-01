@@ -14,10 +14,11 @@ const GitHubCalendar = dynamic(
   },
 );
 
-// Lime-tinted scale (5 levels: empty → most active) to match the brand palette.
+// Lime → charcoal ramp (5 levels: empty → most active). Light mode goes
+// lime→charcoal; dark mode is flipped (charcoal→lime) so cells stay visible.
 const THEME = {
-  light: ["#ebedf0", "#eaf6a8", "#d6f45b", "#a9d63f", "#7fae1b"],
-  dark: ["#26261f", "#3d4a1a", "#6f8f1f", "#a9d63f", "#d6f45b"],
+  light: ["#ebedf0", "#d6f45b", "#a4c53e", "#5a6a2a", "#1a1a1a"],
+  dark: ["#1f1f1a", "#3f4a20", "#7a9430", "#aacb3a", "#d6f45b"],
 };
 
 /**
