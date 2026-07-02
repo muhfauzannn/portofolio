@@ -40,7 +40,7 @@ export function HeroSection() {
             </p>
             <h1
               id="hero-name"
-              className="font-heading text-brand-charcoal text-5xl font-normal sm:text-8xl"
+              className="font-heading text-brand-charcoal text-4xl font-normal whitespace-nowrap sm:text-7xl"
             >
               Muhammad Fauzan
             </h1>

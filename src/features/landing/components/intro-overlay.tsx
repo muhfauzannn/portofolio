@@ -190,7 +190,7 @@ export function IntroOverlay() {
         {/* Greeting typing phase */}
         <div
           ref={greetWrapRef}
-          className="font-heading flex items-center text-5xl text-brand-cream [grid-area:1/1] sm:text-8xl"
+          className="font-heading flex items-center text-4xl text-brand-cream [grid-area:1/1] sm:text-7xl"
         >
           <span ref={greetRef} />
           <span ref={cursorRef} className="text-brand-lime">
@@ -212,8 +212,8 @@ export function IntroOverlay() {
           <span
             ref={nameRef}
             className={cn(
-              "font-heading whitespace-nowrap text-brand-cream",
-              "text-5xl sm:text-8xl",
+              "font-heading tracking-tight whitespace-nowrap text-brand-cream",
+              "text-4xl sm:text-7xl",
             )}
           >
             Muhammad Fauzan

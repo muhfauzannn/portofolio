@@ -43,7 +43,10 @@ export function AboutHero() {
           ))}
 
           {/* Education — a single institution shown as a compact card. */}
-          <Reveal delay={200 + paragraphs.length * 80} className="w-full flex flex-col items-end">
+          <Reveal
+            delay={200 + paragraphs.length * 80}
+            className="w-full flex flex-col items-end"
+          >
             <p className="mt-8 font-script text-xl text-brand-purple sm:text-2xl">
               {education.label}
             </p>
