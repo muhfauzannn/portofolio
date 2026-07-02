@@ -1,15 +1,22 @@
 // Static content for the Experience feature. Swap the entries here — the
 // components consume this typed data (data ≠ presentation, AGENTS.md rule 5).
 
-export type ExperienceItem = {
-  // Time range for the role, e.g. "2023 — Present".
+// A single position held at an institution. One institution can hold several
+// (a promotion / role change), rendered LinkedIn-style as a dotted sub-list.
+export type ExperienceRole = {
+  // Time range for the role, e.g. "2024 — Present".
   period: string;
-  institution: string;
   role: string;
+  description: string;
+};
+
+export type ExperienceItem = {
+  institution: string;
   // Drop a logo in /public and point `src` at it (e.g. "/logos/acme.svg").
   // If the image is missing, the institution's initials show instead.
   logo: { src: string; alt: string };
-  description: string;
+  // Most recent role first.
+  roles: ExperienceRole[];
 };
 
 export type ExperienceContent = {
@@ -23,37 +30,55 @@ export const EXPERIENCE: ExperienceContent = {
   heading: "Experience",
   items: [
     {
-      period: "2024 — Present",
       institution: "Universitas Indonesia",
-      role: "Software Engineer",
       logo: {
         src: "/logo-ui.webp",
         alt: "Logo of Universitas Indonesia",
       },
-      description:
-        "Building and maintaining internal web platforms — shipping clean, accessible interfaces while keeping the codebase modular and fast.",
+      roles: [
+        {
+          period: "2024 — Present",
+          role: "Software Engineer",
+          description:
+            "Building and maintaining internal web platforms — shipping clean, accessible interfaces while keeping the codebase modular and fast.",
+        },
+        {
+          period: "2023 — 2024",
+          role: "Frontend Developer Intern",
+          description:
+            "Implemented UI components and page flows from design handoffs, and helped establish the team's reusable component conventions.",
+        },
+      ],
     },
     {
-      period: "2023 — 2024",
       institution: "Freelance",
-      role: "Web Developer",
       logo: {
         src: "",
         alt: "Freelance",
       },
-      description:
-        "Delivered end-to-end websites for small businesses, from design handoff to deployment, with a focus on polished motion and responsive layouts.",
+      roles: [
+        {
+          period: "2023 — 2024",
+          role: "Web Developer",
+          description:
+            "Delivered end-to-end websites for small businesses, from design handoff to deployment, with a focus on polished motion and responsive layouts.",
+        },
+      ],
     },
     {
-      period: "2022 — 2023",
       institution: "Open Source",
-      role: "DevOps Engineer",
       logo: {
         src: "",
         alt: "Open Source",
       },
-      description:
-        "Automated build and deployment pipelines, containerized services, and improved developer workflows across a handful of community projects.",
+      roles: [
+        {
+          period: "2022 — 2023",
+          role: "DevOps Engineer",
+          description:
+            "Automated build and deployment pipelines, containerized services, and improved developer workflows across a handful of community projects.",
+        },
+      ],
     },
   ],
 };

@@ -61,9 +61,9 @@ export function SiteNav() {
       */}
         <div
           className={cn(
-            "mx-auto border rounded-md border-border/70 bg-background/85 shadow-lg shadow-foreground/5 backdrop-blur-xl",
+            "mx-auto border rounded-md border-white/10 bg-brand-charcoal/85 text-brand-cream shadow-lg shadow-black/20 backdrop-blur-xl",
             "transition-[max-width,border-radius,background-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
-            open ? "max-w-3xl bg-background/95" : "max-w-xl ",
+            open ? "max-w-3xl bg-brand-charcoal/95" : "max-w-xl ",
           )}
         >
           {/* Top bar — kept outside any clip so its text never gets cut mid-morph */}
@@ -133,7 +133,7 @@ export function SiteNav() {
                 {/* Feature card */}
                 <a
                   href="#course"
-                  className="group flex flex-col justify-between gap-4 rounded-2xl bg-brand-charcoal p-4 text-brand-cream"
+                  className="group flex flex-col justify-between gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 text-brand-cream"
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-[0.7rem] font-medium tracking-wide text-brand-cream/60 uppercase">
@@ -162,8 +162,8 @@ export function SiteNav() {
 
 function MenuColumn({ title, links }: { title: string; links: NavLink[] }) {
   return (
-    <div className="rounded-2xl bg-muted/50 p-2">
-      <p className="px-2 pt-1.5 pb-1 text-[0.7rem] font-medium tracking-wide text-muted-foreground uppercase">
+    <div className="rounded-2xl bg-white/5 p-2">
+      <p className="px-2 pt-1.5 pb-1 text-[0.7rem] font-medium tracking-wide text-brand-cream/50 uppercase">
         {title}
       </p>
       <ul>
@@ -174,7 +174,7 @@ function MenuColumn({ title, links }: { title: string; links: NavLink[] }) {
             <li key={link.label}>
               <Cmp
                 href={link.href}
-                className="group flex items-center justify-between gap-2 rounded-xl px-2 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+                className="group flex items-center justify-between gap-2 rounded-xl px-2 py-2 text-sm font-medium transition-colors hover:bg-white/10 hover:text-brand-cream"
               >
                 <span className="flex items-center gap-2">
                   {link.label}
@@ -185,11 +185,11 @@ function MenuColumn({ title, links }: { title: string; links: NavLink[] }) {
                   ) : null}
                 </span>
                 {link.meta ? (
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-xs text-brand-cream/40">
                     {link.meta}
                   </span>
                 ) : (
-                  <ArrowUpRight className="size-4 -translate-x-1 text-muted-foreground opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
+                  <ArrowUpRight className="size-4 -translate-x-1 text-brand-cream/40 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
                 )}
               </Cmp>
             </li>

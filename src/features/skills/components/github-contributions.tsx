@@ -26,7 +26,7 @@ const THEME = {
  */
 export function GithubContributions({ username }: { username: string }) {
   return (
-    <div className="w-full overflow-x-auto">
+    <div className="mx-auto w-fit max-w-full overflow-x-auto">
       <GitHubCalendar
         username={username}
         theme={THEME}

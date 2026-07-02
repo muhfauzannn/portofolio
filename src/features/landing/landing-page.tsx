@@ -4,6 +4,7 @@ import { HeroSection } from "@/features/landing/components/hero-section";
 import { IntroOverlay } from "@/features/landing/components/intro-overlay";
 import { AboutPage } from "../about";
 import { ExperiencePage } from "../experience";
+import { ProjectsPage } from "../projects";
 import { SkillsPage } from "../skills";
 
 /**
@@ -21,6 +22,7 @@ export function LandingPage() {
         <HeroSection />
         <AboutPage />
         <ExperiencePage />
+        <ProjectsPage />
         <SkillsPage />
       </main>
     </div>
