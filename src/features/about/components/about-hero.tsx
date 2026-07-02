@@ -60,7 +60,7 @@ export function AboutHero() {
               />
 
               <div className="min-w-0">
-                <p className="font-heading text-base font-bold tracking-tight sm:text-2xl">
+                <p className="font-heading text-base font-normal tracking-tight sm:text-2xl">
                   {education.institution}
                 </p>
                 <p className="text-sm text-muted-foreground">

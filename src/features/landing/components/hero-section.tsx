@@ -3,9 +3,13 @@
 import * as React from "react";
 // import type { CSSProperties } from "react";
 import Image from "next/image";
-import { ImageIcon } from "lucide-react";
+import { Download, ImageIcon } from "lucide-react";
+import { SiGithub, SiInstagram } from "react-icons/si";
+import { FaLinkedinIn } from "react-icons/fa6";
+import type { IconType } from "react-icons";
 
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 // import { Badge } from "@/components/ui/badge";
 // import { Marquee } from "@/components/ui/marquee";
 import { Reveal } from "@/components/motion/reveal";
@@ -18,6 +22,17 @@ import {
 
 /** Per-card resting tilt so the pile looks hand-scattered. */
 const PHOTO_TILT = [-6, 5, -3, 7, -4];
+
+/** Social links shown under the intro. Swap the hrefs for your own. */
+const SOCIALS: { label: string; href: string; Icon: IconType }[] = [
+  { label: "GitHub", href: "https://github.com/muhfauzannn", Icon: SiGithub },
+  // TODO: set your real LinkedIn / Instagram URLs.
+  { label: "LinkedIn", href: "#", Icon: FaLinkedinIn },
+  { label: "Instagram", href: "#", Icon: SiInstagram },
+];
+
+/** Resume file — drop the PDF in /public and update the path if needed. */
+const RESUME_HREF = "/resume.pdf";
 
 /** Screen tint per showcase tone — tokens only, no raw values. */
 const TONE: Record<ShowcaseItem["tone"], string> = {
@@ -58,10 +73,39 @@ export function HeroSection() {
               cursorClassName="text-brand-purple"
             />
             <p className="mx-auto font-heading mt-6 max-w-xl text-base text-muted-foreground text-pretty sm:text-lg lg:mx-0">
-              Welcome to my website portofolio, where I showcase my skills and
-              projects as a web developer. Explore my work and get to know me
-              better!
+              This is my portfolio, where I transform caffeine and late-night
+              debugging into actual, working solutions. Take a look around, and
+              don't hesitate to reach out.
             </p>
+
+            {/* Social links + resume */}
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
+              {SOCIALS.map(({ label, href, Icon }) => (
+                <Button
+                  key={label}
+                  asChild
+                  variant="outline"
+                  size="icon"
+                  className="rounded-full"
+                >
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={label}
+                  >
+                    <Icon className="size-4" />
+                  </a>
+                </Button>
+              ))}
+
+              <Button asChild size="pill">
+                <a href={RESUME_HREF} target="_blank" rel="noopener noreferrer">
+                  <Download className="size-4" />
+                  Resume
+                </a>
+              </Button>
+            </div>
           </Reveal>
         </div>
 

@@ -7,7 +7,7 @@ import { AboutHero } from "@/features/about/components/about-hero";
  */
 export function AboutPage() {
   return (
-    <div className="relative flex min-h-full flex-col">
+    <div id="about" className="relative flex min-h-full scroll-mt-28 flex-col">
       <MagneticCursor />
       <SiteNav />
 

@@ -1,4 +1,5 @@
 import { SiteNav } from "@/components/layout/site-nav";
+import { SiteFooter } from "@/components/layout/site-footer";
 import { MagneticCursor } from "@/components/motion/magnetic-cursor";
 import { HeroSection } from "@/features/landing/components/hero-section";
 import { IntroOverlay } from "@/features/landing/components/intro-overlay";
@@ -21,10 +22,15 @@ export function LandingPage() {
       <main className="flex flex-col gap-30 max-md:gap-20">
         <HeroSection />
         <AboutPage />
-        <ExperiencePage />
-        <ProjectsPage />
+        {/* Experience + Projects share one continuous charcoal region. */}
+        <div className="flex flex-col">
+          <ExperiencePage />
+          <ProjectsPage />
+        </div>
         <SkillsPage />
       </main>
+
+      <SiteFooter />
     </div>
   );
 }

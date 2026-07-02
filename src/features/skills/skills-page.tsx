@@ -14,7 +14,7 @@ import { GITHUB_USERNAME } from "@/features/skills/data/skills";
  */
 export function SkillsPage() {
   return (
-    <div className="relative flex min-h-full flex-col">
+    <div id="skills" className="relative flex min-h-full scroll-mt-28 flex-col">
       <MagneticCursor />
       <SiteNav />
 
@@ -80,7 +80,7 @@ export function SkillsPage() {
             </Reveal>
           </div>
 
-          <div className="mx-auto max-w-6xl">
+          <div className="mx-auto max-w-6xl pb-10">
             <SkillsFan />
           </div>
         </section>

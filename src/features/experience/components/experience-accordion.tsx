@@ -27,7 +27,7 @@ function LogoChip({
   return (
     <div
       className={cn(
-        "grid shrink-0 place-items-center overflow-hidden rounded-xl bg-brand-cream",
+        "grid shrink-0 place-items-center overflow-hidden rounded-xl",
         className,
       )}
     >
@@ -67,7 +67,7 @@ export function ExperienceAccordion({ items }: { items: ExperienceItem[] }) {
           return (
             <li
               key={item.institution}
-              className="border-t border-border first:border-t-0"
+              className="border-t border-white/10 first:border-t-0"
             >
               {/* Trigger — big institution name + role on the far side. */}
               <button
@@ -79,18 +79,15 @@ export function ExperienceAccordion({ items }: { items: ExperienceItem[] }) {
               >
                 <span
                   className={cn(
-                    "font-heading text-3xl font-bold tracking-tight uppercase transition-colors duration-300 sm:text-5xl",
+                    "font-heading text-3xl font-normal tracking-tight transition-colors duration-300 sm:text-5xl",
                     open
-                      ? "text-foreground"
-                      : "text-foreground/25 group-hover:text-foreground",
+                      ? "text-brand-cream"
+                      : "text-brand-cream/30 group-hover:text-brand-cream",
                   )}
                 >
                   {item.institution}
                 </span>
-                <LogoChip
-                  item={item}
-                  className="size-12  sm:size-14"
-                />
+                <LogoChip item={item} className="size-12  sm:size-14" />
               </button>
 
               {/* Detail — height unfurls via the grid-rows trick. */}
@@ -116,21 +113,21 @@ export function ExperienceAccordion({ items }: { items: ExperienceItem[] }) {
                           <li key={r.period + r.role} className="flex gap-4">
                             {/* Rail: a dot per role, joined by a line. */}
                             <div className="flex flex-none flex-col items-center pt-1.5">
-                              <span className="size-2.5 rounded-full bg-brand-purple ring-4 ring-background" />
+                              <span className="size-2.5 rounded-full bg-brand-lime ring-4 ring-brand-charcoal" />
                               {!last && (
-                                <span className="mt-1 w-px grow bg-border" />
+                                <span className="mt-1 w-px grow bg-white/15" />
                               )}
                             </div>
                             <div
                               className={cn("min-w-0", last ? "pb-0" : "pb-6")}
                             >
-                              <h3 className="font-heading text-lg font-bold tracking-tight text-balance sm:text-xl">
+                              <h3 className="font-heading text-lg font-normal tracking-tight text-balance sm:text-xl">
                                 {r.role}
                               </h3>
-                              <span className="mt-0.5 block text-xs font-medium tracking-widest text-muted-foreground uppercase">
+                              <span className="mt-0.5 block text-xs font-medium tracking-widest text-brand-cream/50 uppercase">
                                 {r.period}
                               </span>
-                              <p className="mt-2 max-w-2xl text-sm text-muted-foreground text-pretty sm:text-base">
+                              <p className="mt-2 max-w-2xl text-sm text-brand-cream/70 text-pretty sm:text-base">
                                 {r.description}
                               </p>
                             </div>

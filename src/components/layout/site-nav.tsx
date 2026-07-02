@@ -10,18 +10,22 @@ import { TransitionLink } from "@/components/motion/transition-link";
 
 type NavLink = { label: string; href: string; badge?: string; meta?: string };
 
-const PRODUCTS: NavLink[] = [
-  { label: "The Vault", href: "#vault" },
-  { label: "Page Transition Course", href: "#course" },
-  { label: "Button Pack", href: "#buttons", badge: "New" },
-  { label: "Community", href: "#community" },
+const EMAIL = "mailto:fauzannmuhh@gmail.com";
+
+// In-page sections (see the anchor ids on each feature's section).
+const SECTIONS: NavLink[] = [
+  { label: "Home", href: "#top" },
+  { label: "About", href: "#about" },
+  { label: "Experience", href: "#experience" },
+  { label: "Projects", href: "#projects" },
+  { label: "Skills", href: "#skills" },
 ];
 
-const EXPLORE: NavLink[] = [
-  { label: "Work", href: "/tes", meta: "12" },
-  { label: "About", href: "/about" },
-  { label: "Skills", href: "/skills" },
-  { label: "Contact", href: "/contact" },
+const CONNECT: NavLink[] = [
+  { label: "GitHub", href: "https://github.com/muhfauzannn" },
+  // TODO: replace with your real LinkedIn URL.
+  { label: "LinkedIn", href: "#" },
+  { label: "Email", href: EMAIL },
 ];
 
 export function SiteNav() {
@@ -103,12 +107,12 @@ export function SiteNav() {
               <span className="grid size-7 place-items-center rounded-full bg-brand-lime text-brand-lime-foreground">
                 <Sparkles className="size-4" />
               </span>
-              <span className="tracking-tight">Toolkit</span>
+              <span className="tracking-tight">Fauzan</span>
             </TransitionLink>
 
             <div className="flex items-center gap-1.5">
               <Button size="pill" className="hidden sm:inline-flex" asChild>
-                <TransitionLink href="/contact">Get started</TransitionLink>
+                <a href={EMAIL}>Get in touch</a>
               </Button>
             </div>
           </nav>
@@ -127,26 +131,35 @@ export function SiteNav() {
                   open ? "opacity-100 delay-100" : "opacity-0",
                 )}
               >
-                <MenuColumn title="Our products" links={PRODUCTS} />
-                <MenuColumn title="Explore" links={EXPLORE} />
+                <MenuColumn
+                  title="Explore"
+                  links={SECTIONS}
+                  onSelect={() => setOpen(false)}
+                />
+                <MenuColumn
+                  title="Connect"
+                  links={CONNECT}
+                  onSelect={() => setOpen(false)}
+                />
 
-                {/* Feature card */}
+                {/* Feature card — a get-in-touch CTA. */}
                 <a
-                  href="#course"
+                  href={EMAIL}
+                  onClick={() => setOpen(false)}
                   className="group flex flex-col justify-between gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 text-brand-cream"
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-[0.7rem] font-medium tracking-wide text-brand-cream/60 uppercase">
-                      Start learning
+                      Available for work
                     </span>
-                    <Badge variant="lime">New</Badge>
+                    <Badge variant="lime">Open</Badge>
                   </div>
                   <div>
                     <p className="font-heading text-lg leading-tight font-semibold">
-                      Page Transition Course
+                      Let&apos;s work together
                     </p>
                     <span className="mt-2 inline-flex items-center gap-1 text-sm text-brand-cream/70 transition-colors group-hover:text-brand-lime">
-                      More info
+                      Get in touch
                       <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                     </span>
                   </div>
@@ -160,7 +173,15 @@ export function SiteNav() {
   );
 }
 
-function MenuColumn({ title, links }: { title: string; links: NavLink[] }) {
+function MenuColumn({
+  title,
+  links,
+  onSelect,
+}: {
+  title: string;
+  links: NavLink[];
+  onSelect?: () => void;
+}) {
   return (
     <div className="rounded-2xl bg-white/5 p-2">
       <p className="px-2 pt-1.5 pb-1 text-[0.7rem] font-medium tracking-wide text-brand-cream/50 uppercase">
@@ -168,12 +189,18 @@ function MenuColumn({ title, links }: { title: string; links: NavLink[] }) {
       </p>
       <ul>
         {links.map((link) => {
-          // Internal routes animate via the page transition; "#" anchors don't.
+          // Internal routes animate via the page transition; anchors/external
+          // links are plain <a>. External links open in a new tab.
           const Cmp = link.href.startsWith("/") ? TransitionLink : "a";
+          const external = link.href.startsWith("http");
           return (
             <li key={link.label}>
               <Cmp
                 href={link.href}
+                onClick={onSelect}
+                {...(external
+                  ? { target: "_blank", rel: "noopener noreferrer" }
+                  : {})}
                 className="group flex items-center justify-between gap-2 rounded-xl px-2 py-2 text-sm font-medium transition-colors hover:bg-white/10 hover:text-brand-cream"
               >
                 <span className="flex items-center gap-2">

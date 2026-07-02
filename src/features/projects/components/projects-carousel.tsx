@@ -122,7 +122,7 @@ export function ProjectsCarousel({ projects }: { projects: Project[] }) {
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
         onKeyDown={onKeyDown}
-        className="relative mx-auto h-[clamp(320px,54vw,500px)] max-w-5xl cursor-grab touch-pan-y outline-none active:cursor-grabbing"
+        className="relative mx-auto h-[clamp(380px,64vw,620px)] max-w-6xl cursor-grab touch-pan-y outline-none active:cursor-grabbing"
       >
         {projects.map((project, i) => {
           const pos = positions[i];
@@ -130,9 +130,9 @@ export function ProjectsCarousel({ projects }: { projects: Project[] }) {
           const hidden = abs > 2.4;
           const isCenter = wrap(Math.round(active - drag)) === i;
 
-          const translateX = pos * 30; // % of the card's own width
+          const translateX = pos * 20; // % of the card's own width
           // Flat 2D fan: left cards lean left, right cards lean right.
-          const rotate = clamp(pos * 7, -18, 18);
+          const rotate = clamp(pos * 4, -10, 10);
           const scale = clamp(1 - abs * 0.14, 0.62, 1);
 
           // While dragging, or when a card wraps to the far side, skip the
@@ -154,7 +154,7 @@ export function ProjectsCarousel({ projects }: { projects: Project[] }) {
                 transition: noTween ? "none" : undefined,
               }}
               className={cn(
-                "absolute top-1/2 left-1/2 w-[clamp(260px,72vw,540px)] will-change-transform",
+                "absolute top-1/2 left-1/2 w-[clamp(300px,84vw,720px)] will-change-transform",
                 "transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
                 !isCenter && "cursor-pointer",
               )}
@@ -166,7 +166,7 @@ export function ProjectsCarousel({ projects }: { projects: Project[] }) {
       </div>
 
       {/* Controls — arrows + progress dots. */}
-      <div className="mt-8 flex items-center justify-center gap-5">
+      {/* <div className="mt-8 flex items-center justify-center gap-5">
         <Button
           variant="outline"
           size="icon"
@@ -202,7 +202,7 @@ export function ProjectsCarousel({ projects }: { projects: Project[] }) {
         >
           <ChevronRight />
         </Button>
-      </div>
+      </div> */}
     </div>
   );
 }
@@ -216,13 +216,15 @@ function ProjectCard({
 }) {
   return (
     <div className="relative">
-      {/* Image — its own rounded card so its shape never changes. */}
+      {/* Image — its own rounded card. The lime frame is always 6px (so the
+          size never jumps); only its colour + radius animate, in sync with the
+          footer below, so the whole frame appears as one. */}
       <div
         className={cn(
-          "overflow-hidden shadow-2xl bg-brand-charcoal shadow-black/30 transition-all duration-300",
+          "overflow-hidden border-x-6 border-t-6 bg-brand-charcoal shadow-2xl shadow-black/30 transition-[border-color,border-radius] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
           active
-            ? "border-t-6 border-x-6 rounded-t-lg border-brand-lime"
-            : "ring-border/60 rounded-lg",
+            ? "rounded-t-lg border-brand-lime"
+            : "rounded-lg border-white/10",
         )}
       >
         <ProjectVisual project={project} />
@@ -233,7 +235,7 @@ function ProjectCard({
           keeping the image put; its height + opacity animate open/closed. */}
       <div
         className={cn(
-          "absolute inset-x-0 top-full grid transition-[grid-template-rows] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
+          "absolute inset-x-0 top-full grid transition-[grid-template-rows] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
           active ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
         )}
       >
@@ -241,7 +243,7 @@ function ProjectCard({
           <div
             className={cn(
               "flex items-center justify-between gap-2 rounded-b-lg bg-brand-lime px-5 py-2 text-brand-lime-foreground transition-opacity duration-300",
-              active ? "opacity-100 delay-150" : "opacity-0",
+              active ? "opacity-100" : "opacity-0",
             )}
           >
             <div className="min-w-0">

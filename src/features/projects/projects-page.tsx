@@ -10,10 +10,13 @@ export function ProjectsPage() {
   const { eyebrow, heading, projects } = PROJECTS_CONTENT;
 
   return (
-    <section className="overflow-hidden px-4">
+    <section
+      id="projects"
+      className="scroll-mt-28 overflow-hidden bg-brand-charcoal px-4 text-brand-cream sm:py-28"
+    >
       <div className="mx-auto max-w-6xl text-center">
         <Reveal>
-          <p className="font-script text-2xl text-brand-purple sm:text-3xl">
+          <p className="font-script text-2xl text-brand-lime sm:text-3xl">
             {eyebrow}
           </p>
         </Reveal>
@@ -24,7 +27,7 @@ export function ProjectsPage() {
         </Reveal>
       </div>
 
-      <Reveal delay={140} className="mt-12 sm:mt-14">
+      <Reveal delay={140}>
         <ProjectsCarousel projects={projects} />
       </Reveal>
     </section>
