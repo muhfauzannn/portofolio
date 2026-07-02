@@ -47,10 +47,11 @@ export function IntroOverlay() {
         return;
       }
 
-      // Hide the real heading behind the columns until the handoff lands.
-      // (useGSAP runs before paint, so there's no flash of the hero name.)
+      // Columns cover the whole screen from the very first frame (their
+      // default rendered state), so the hero is never visible behind them.
+      // The real heading stays hidden until the handoff lands.
       gsap.set(heroName, { opacity: 0 });
-      gsap.set(colsRef.current, { yPercent: 100 });
+      gsap.set(colsRef.current, { yPercent: 0 });
       gsap.set(greetWrapRef.current, { opacity: 1 });
       gsap.set(nameWrapRef.current, { opacity: 0 });
       gsap.set(prefixRef.current, { opacity: 0, yPercent: 40 });
@@ -106,15 +107,9 @@ export function IntroOverlay() {
           },
         );
 
-      // 1 — columns rise from the bottom to cover the screen.
-      tl.to(colsRef.current, {
-        yPercent: 0,
-        duration: 0.7,
-        stagger: 0.06,
-        ease: EASE,
-      });
-
-      // 2 — cycle the greetings with a typing effect.
+      // 1 — screen is already covered; cycle the greetings with a typing
+      //     effect (a short beat first so it doesn't start mid-blink).
+      tl.to({}, { duration: 0.25 });
       GREETINGS.forEach((word) => {
         typeIn(word);
         tl.to({}, { duration: 0.45 });
