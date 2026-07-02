@@ -18,7 +18,6 @@ gsap.registerPlugin(useGSAP);
 
 const COLUMNS = Array.from({ length: 7 });
 const EASE = "power4.inOut";
-const STORAGE_KEY = "intro-played";
 
 // Greetings across languages — cycled with a typing effect.
 const GREETINGS = ["Hello", "Ciao", "Hola", "Bonjour", "こんにちは", "Halo"];
@@ -40,12 +39,6 @@ export function IntroOverlay() {
       const name = nameRef.current;
       const heroName = document.querySelector<HTMLElement>("#hero-name");
       if (!root || !greet || !name || !heroName) return;
-
-      // Already seen this session → don't replay; leave the page untouched.
-      if (sessionStorage.getItem(STORAGE_KEY)) {
-        gsap.set(root, { display: "none" });
-        return;
-      }
 
       // Columns cover the whole screen from the very first frame (their
       // default rendered state), so the hero is never visible behind them.
@@ -77,7 +70,6 @@ export function IntroOverlay() {
         onComplete: () => {
           gsap.set(heroName, { opacity: 1 });
           gsap.set(root, { display: "none" });
-          sessionStorage.setItem(STORAGE_KEY, "1");
         },
       });
 
