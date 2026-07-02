@@ -4,9 +4,6 @@ import * as React from "react";
 // import type { CSSProperties } from "react";
 import Image from "next/image";
 import { Download, ImageIcon } from "lucide-react";
-import { SiGithub, SiInstagram } from "react-icons/si";
-import { FaLinkedinIn } from "react-icons/fa6";
-import type { IconType } from "react-icons";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -15,21 +12,16 @@ import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/motion/reveal";
 import TextType from "@/components/motion/TextType";
 import {
-  PHOTOS,
   // SHOWCASE,
   type ShowcaseItem,
 } from "@/features/landing/data/landing";
+import {
+  type HeroPhoto,
+  type HeroSocial,
+} from "@/features/landing/lib/queries";
 
 /** Per-card resting tilt so the pile looks hand-scattered. */
 const PHOTO_TILT = [-6, 5, -3, 7, -4];
-
-/** Social links shown under the intro. Swap the hrefs for your own. */
-const SOCIALS: { label: string; href: string; Icon: IconType }[] = [
-  { label: "GitHub", href: "https://github.com/muhfauzannn", Icon: SiGithub },
-  // TODO: set your real LinkedIn / Instagram URLs.
-  { label: "LinkedIn", href: "#", Icon: FaLinkedinIn },
-  { label: "Instagram", href: "#", Icon: SiInstagram },
-];
 
 /** Resume file — drop the PDF in /public and update the path if needed. */
 const RESUME_HREF = "/resume.pdf";
@@ -42,7 +34,13 @@ const TONE: Record<ShowcaseItem["tone"], string> = {
   lime: "bg-brand-lime text-brand-lime-foreground",
 };
 
-export function HeroSection() {
+export function HeroSection({
+  photos,
+  socials,
+}: {
+  photos: HeroPhoto[];
+  socials: HeroSocial[];
+}) {
   return (
     <section className="relative overflow-hidden px-4 flex min-h-screen flex-col justify-center">
       <div className="bg-grid pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(ellipse_at_center,black,transparent_72%)]" />
@@ -80,7 +78,7 @@ export function HeroSection() {
 
             {/* Social links + resume */}
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
-              {SOCIALS.map(({ label, href, Icon }) => (
+              {socials.map(({ label, url, iconUrl }) => (
                 <Button
                   key={label}
                   asChild
@@ -89,12 +87,25 @@ export function HeroSection() {
                   className="rounded-full"
                 >
                   <a
-                    href={href}
+                    href={url}
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={label}
                   >
-                    <Icon className="size-4" />
+                    {iconUrl ? (
+                      <Image
+                        src={iconUrl}
+                        alt=""
+                        aria-hidden
+                        width={16}
+                        height={16}
+                        className="size-4 object-contain"
+                      />
+                    ) : (
+                      <span className="text-xs font-bold">
+                        {label.charAt(0).toUpperCase()}
+                      </span>
+                    )}
                   </a>
                 </Button>
               ))}
@@ -111,7 +122,7 @@ export function HeroSection() {
 
         {/* Stacked printed photos — click to shuffle through them */}
         <Reveal delay={180}>
-          <PhotoStack />
+          <PhotoStack photos={photos} />
         </Reveal>
       </div>
 
@@ -133,9 +144,9 @@ export function HeroSection() {
   );
 }
 
-function PhotoStack() {
+function PhotoStack({ photos }: { photos: HeroPhoto[] }) {
   // `order[last]` is the front photo.
-  const [order, setOrder] = React.useState(() => PHOTOS.map((_, i) => i));
+  const [order, setOrder] = React.useState(() => photos.map((_, i) => i));
   const [drag, setDrag] = React.useState({ x: 0, y: 0 });
   const [dragging, setDragging] = React.useState(false);
   const [leaving, setLeaving] = React.useState(false);
@@ -191,7 +202,7 @@ function PhotoStack() {
   return (
     <div className="relative mx-auto aspect-4/5 w-56 select-none sm:w-64">
       {order.map((cardIndex, stackPos) => {
-        const photo = PHOTOS[cardIndex];
+        const photo = photos[cardIndex];
         const depth = order.length - 1 - stackPos; // 0 = front
         const isFront = depth === 0;
         const dragTf =

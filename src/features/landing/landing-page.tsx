@@ -3,6 +3,10 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { MagneticCursor } from "@/components/motion/magnetic-cursor";
 import { HeroSection } from "@/features/landing/components/hero-section";
 import { IntroOverlay } from "@/features/landing/components/intro-overlay";
+import {
+  getHeroPhotos,
+  getHeroSocials,
+} from "@/features/landing/lib/queries";
 import { AboutPage } from "../about";
 import { ExperiencePage } from "../experience";
 import { ProjectsPage } from "../projects";
@@ -15,7 +19,12 @@ import { SkillsPage } from "../skills";
  * The intro overlay gates itself client-side (localStorage), so it's shown at
  * most once per hour.
  */
-export function LandingPage() {
+export async function LandingPage() {
+  const [socials, photos] = await Promise.all([
+    getHeroSocials(),
+    getHeroPhotos(),
+  ]);
+
   return (
     <div id="top" className="relative flex min-h-full flex-col">
       <IntroOverlay />
@@ -23,7 +32,7 @@ export function LandingPage() {
       <SiteNav />
 
       <main className="flex flex-col gap-30 max-md:gap-20">
-        <HeroSection />
+        <HeroSection socials={socials} photos={photos} />
         <AboutPage />
         {/* Experience + Projects share one continuous charcoal region. */}
         <div className="flex flex-col">

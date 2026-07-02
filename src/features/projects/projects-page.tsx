@@ -1,13 +1,18 @@
 import { Reveal } from "@/components/motion/reveal";
 import { ProjectsCarousel } from "@/features/projects/components/projects-carousel";
-import { PROJECTS_CONTENT } from "@/features/projects/data/projects";
+import { getProjects } from "@/features/projects/lib/queries";
+
+// Fixed section header (chrome, not user-editable).
+const PROJECTS_HEADER = { eyebrow: "Selected work", heading: "Projects" };
 
 /**
- * Projects feature — a section header over a 3D coverflow carousel. The header
- * is a Server Component; the interactive carousel is a client leaf.
+ * Projects feature — a section header over a 3D coverflow carousel. Server
+ * Component: reads the (cached) projects; the interactive carousel is a client
+ * leaf.
  */
-export function ProjectsPage() {
-  const { eyebrow, heading, projects } = PROJECTS_CONTENT;
+export async function ProjectsPage() {
+  const { eyebrow, heading } = PROJECTS_HEADER;
+  const projects = await getProjects();
 
   return (
     <section
@@ -27,9 +32,11 @@ export function ProjectsPage() {
         </Reveal>
       </div>
 
-      <Reveal delay={140}>
-        <ProjectsCarousel projects={projects} />
-      </Reveal>
+      {projects.length > 0 ? (
+        <Reveal delay={140}>
+          <ProjectsCarousel projects={projects} />
+        </Reveal>
+      ) : null}
     </section>
   );
 }

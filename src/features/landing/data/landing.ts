@@ -38,9 +38,9 @@ export type Photo = {
 
 /** Stacked Polaroids in the hero — add, remove or reorder freely. */
 export const PHOTOS: Photo[] = [
-  { src: "", alt: "Portrait one", caption: "That's me" },
-  { src: "", alt: "Portrait two", caption: "On set" },
-  { src: "", alt: "Portrait three", caption: "IRL" },
+  { src: "/fauzan.webp", alt: "Portrait one", caption: "It's me" },
+  { src: "/jakun.webp", alt: "Portrait two", caption: "Yellow jacket🤔" },
+  { src: "/webdev.JPG", alt: "Portrait three", caption: "Ristek fams" },
 ];
 
 export type ShowcaseItem = {
