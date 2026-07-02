@@ -15,24 +15,37 @@ import {
   deleteHeroSocial,
   saveHeroPhoto,
   saveHeroSocial,
+  saveSiteSetting,
 } from "@/features/admin/lib/actions";
 import type {
   HeroPhotoRow,
   HeroSocialRow,
+  SiteSettingRow,
 } from "@/features/admin/lib/data";
 
 export function HeroEditor({
   socials,
   photos,
+  siteSetting,
 }: {
   socials: HeroSocialRow[];
   photos: HeroPhotoRow[];
+  siteSetting: SiteSettingRow | null;
 }) {
   return (
     <div className="flex flex-col gap-10">
       <section className="flex flex-col gap-4">
         <h3 className="font-heading text-xl">Social links</h3>
+        <p className="-mt-2 text-sm text-muted-foreground">
+          GitHub, LinkedIn, and Instagram use built-in brand icons (matched by
+          label) — no icon upload needed for those.
+        </p>
         <SocialList socials={socials} />
+      </section>
+
+      <section className="flex flex-col gap-4">
+        <h3 className="font-heading text-xl">Resume</h3>
+        <ResumeForm siteSetting={siteSetting} />
       </section>
 
       <section className="flex flex-col gap-4">
@@ -40,6 +53,55 @@ export function HeroEditor({
         <PhotoList photos={photos} />
       </section>
     </div>
+  );
+}
+
+// --- Resume link ------------------------------------------------------------
+
+function ResumeForm({ siteSetting }: { siteSetting: SiteSettingRow | null }) {
+  const router = useRouter();
+  const [resumeUrl, setResumeUrl] = React.useState(
+    siteSetting?.resumeUrl ?? "",
+  );
+  const [busy, setBusy] = React.useState(false);
+
+  async function save() {
+    setBusy(true);
+    try {
+      await saveSiteSetting({ id: siteSetting?.id, resumeUrl });
+      toast.success("Resume link saved");
+      router.refresh();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Save failed");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Card>
+      <CardContent className="flex flex-col gap-3 py-4 sm:flex-row sm:items-end">
+        <Field
+          label="Resume link"
+          className="flex-1"
+          hint="The URL the hero Resume button opens (e.g. /resume.pdf or a Google Drive link)."
+        >
+          <Input
+            value={resumeUrl}
+            placeholder="/resume.pdf"
+            onChange={(e) => setResumeUrl(e.target.value)}
+          />
+        </Field>
+        <Button type="button" size="sm" onClick={save} disabled={busy}>
+          {busy ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <Save className="size-4" />
+          )}
+          Save
+        </Button>
+      </CardContent>
+    </Card>
   );
 }
 

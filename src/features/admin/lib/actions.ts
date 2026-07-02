@@ -86,6 +86,27 @@ export async function deleteHeroPhoto(id: string) {
   revalidateTag(CACHE_TAGS.hero, "max");
 }
 
+// --- Site settings (resume link) --------------------------------------------
+
+export type SiteSettingInput = {
+  id?: string;
+  resumeUrl: string;
+};
+
+export async function saveSiteSetting(input: SiteSettingInput) {
+  await requireSession();
+  const { id, ...values } = input;
+  if (id) {
+    await db
+      .update(schema.siteSetting)
+      .set(values)
+      .where(eq(schema.siteSetting.id, id));
+  } else {
+    await db.insert(schema.siteSetting).values(values);
+  }
+  revalidateTag(CACHE_TAGS.hero, "max");
+}
+
 // --- About ------------------------------------------------------------------
 
 export type AboutInput = {

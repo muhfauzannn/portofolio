@@ -6,6 +6,7 @@ import { IntroOverlay } from "@/features/landing/components/intro-overlay";
 import {
   getHeroPhotos,
   getHeroSocials,
+  getResumeUrl,
 } from "@/features/landing/lib/queries";
 import { AboutPage } from "../about";
 import { ExperiencePage } from "../experience";
@@ -20,9 +21,10 @@ import { SkillsPage } from "../skills";
  * most once per hour.
  */
 export async function LandingPage() {
-  const [socials, photos] = await Promise.all([
+  const [socials, photos, resumeUrl] = await Promise.all([
     getHeroSocials(),
     getHeroPhotos(),
+    getResumeUrl(),
   ]);
 
   return (
@@ -32,7 +34,7 @@ export async function LandingPage() {
       <SiteNav />
 
       <main className="flex flex-col gap-30 max-md:gap-20">
-        <HeroSection socials={socials} photos={photos} />
+        <HeroSection socials={socials} photos={photos} resumeUrl={resumeUrl} />
         <AboutPage />
         {/* Experience + Projects share one continuous charcoal region. */}
         <div className="flex flex-col">

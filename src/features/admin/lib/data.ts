@@ -44,9 +44,15 @@ export function getSkillsAdmin() {
   return db.select().from(schema.skill).orderBy(asc(schema.skill.position));
 }
 
+export async function getSiteSettingAdmin() {
+  const [row] = await db.select().from(schema.siteSetting).limit(1);
+  return row ?? null;
+}
+
 export type HeroSocialRow = typeof schema.heroSocial.$inferSelect;
 export type HeroPhotoRow = typeof schema.heroPhoto.$inferSelect;
 export type AboutRow = typeof schema.about.$inferSelect;
 export type ExperienceRow = typeof schema.experienceItem.$inferSelect;
 export type ProjectRow = typeof schema.project.$inferSelect;
 export type SkillRow = typeof schema.skill.$inferSelect;
+export type SiteSettingRow = typeof schema.siteSetting.$inferSelect;

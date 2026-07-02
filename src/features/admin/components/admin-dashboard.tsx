@@ -18,12 +18,14 @@ import type {
   HeroPhotoRow,
   HeroSocialRow,
   ProjectRow,
+  SiteSettingRow,
   SkillRow,
 } from "@/features/admin/lib/data";
 
 export function AdminDashboard({
   socials,
   photos,
+  siteSetting,
   about,
   experience,
   projects,
@@ -31,6 +33,7 @@ export function AdminDashboard({
 }: {
   socials: HeroSocialRow[];
   photos: HeroPhotoRow[];
+  siteSetting: SiteSettingRow | null;
   about: AboutRow | null;
   experience: ExperienceRow[];
   projects: ProjectRow[];
@@ -70,7 +73,11 @@ export function AdminDashboard({
         </TabsList>
 
         <TabsContent value="hero">
-          <HeroEditor socials={socials} photos={photos} />
+          <HeroEditor
+            socials={socials}
+            photos={photos}
+            siteSetting={siteSetting}
+          />
         </TabsContent>
         <TabsContent value="about">
           <AboutEditor about={about} />

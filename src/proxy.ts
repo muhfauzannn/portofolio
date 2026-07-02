@@ -7,7 +7,7 @@ import { NextResponse, type NextRequest } from "next/server";
  * session validation still happens in the admin server components / actions
  * (via `auth.api.getSession`).
  */
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // The login page must stay reachable while logged out.

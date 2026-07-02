@@ -171,6 +171,14 @@ export const project = pgTable("project", {
   position: integer("position").notNull().default(0),
 });
 
+/** Site-wide settings — a single row (singleton). Currently the resume link. */
+export const siteSetting = pgTable("site_setting", {
+  id: text("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  resumeUrl: text("resume_url").notNull().default(""),
+});
+
 /** A skill / tool (name + uploaded logo). */
 export const skill = pgTable("skill", {
   id: text("id")

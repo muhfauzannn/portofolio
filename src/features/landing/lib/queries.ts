@@ -31,6 +31,19 @@ export const getHeroSocials = unstable_cache(
   { tags: [CACHE_TAGS.hero] },
 );
 
+/**
+ * Resume link shown on the hero button. Falls back to the bundled PDF when the
+ * setting is empty/unset. Cached under the `hero` tag.
+ */
+export const getResumeUrl = unstable_cache(
+  async (): Promise<string> => {
+    const [row] = await db.select().from(schema.siteSetting).limit(1);
+    return row?.resumeUrl || "/resume.pdf";
+  },
+  ["resume-url"],
+  { tags: [CACHE_TAGS.hero] },
+);
+
 /** Stacked hero photos, ordered. Cached under the `hero` tag. */
 export const getHeroPhotos = unstable_cache(
   async (): Promise<HeroPhoto[]> => {

@@ -102,6 +102,12 @@ async function seedContent() {
     console.log("✓ seeded about");
   }
 
+  // Site settings (singleton) — resume link
+  if (await isEmpty(schema.siteSetting)) {
+    await db.insert(schema.siteSetting).values({ resumeUrl: "/resume.pdf" });
+    console.log("✓ seeded site settings");
+  }
+
   // Experience
   if (await isEmpty(schema.experienceItem)) {
     await db.insert(schema.experienceItem).values([

@@ -2,6 +2,13 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
+  experimental: {
+    // CMS image uploads go through a Server Action; raise the request body
+    // limit from Next's 1MB default so larger images upload successfully.
+    serverActions: {
+      bodySizeLimit: "5mb",
+    },
+  },
   images: {
     remotePatterns: [
       // Tech-stack logos load from simple-icons' CDN (see TechBadge).

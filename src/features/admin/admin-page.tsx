@@ -5,6 +5,7 @@ import {
   getHeroPhotosAdmin,
   getHeroSocialsAdmin,
   getProjectsAdmin,
+  getSiteSettingAdmin,
   getSkillsAdmin,
 } from "@/features/admin/lib/data";
 
@@ -13,10 +14,11 @@ import {
  * so edits show immediately) and hands it to the client dashboard.
  */
 export async function AdminPage() {
-  const [socials, photos, about, experience, projects, skills] =
+  const [socials, photos, siteSetting, about, experience, projects, skills] =
     await Promise.all([
       getHeroSocialsAdmin(),
       getHeroPhotosAdmin(),
+      getSiteSettingAdmin(),
       getAboutAdmin(),
       getExperienceAdmin(),
       getProjectsAdmin(),
@@ -27,6 +29,7 @@ export async function AdminPage() {
     <AdminDashboard
       socials={socials}
       photos={photos}
+      siteSetting={siteSetting}
       about={about}
       experience={experience}
       projects={projects}

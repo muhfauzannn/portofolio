@@ -4,6 +4,9 @@ import * as React from "react";
 // import type { CSSProperties } from "react";
 import Image from "next/image";
 import { Download, ImageIcon } from "lucide-react";
+import type { IconType } from "react-icons";
+import { SiGithub, SiInstagram } from "react-icons/si";
+import { LuLinkedin } from "react-icons/lu";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -23,8 +26,16 @@ import {
 /** Per-card resting tilt so the pile looks hand-scattered. */
 const PHOTO_TILT = [-6, 5, -3, 7, -4];
 
-/** Resume file — drop the PDF in /public and update the path if needed. */
-const RESUME_HREF = "/resume.pdf";
+/**
+ * Brand icons for known socials — matched by label so GitHub/LinkedIn/Instagram
+ * render a crisp react-icon instead of an uploaded image. Unknown labels fall
+ * back to the uploaded `iconUrl`, then the first letter.
+ */
+const SOCIAL_ICONS: Record<string, IconType> = {
+  github: SiGithub,
+  linkedin: LuLinkedin,
+  instagram: SiInstagram,
+};
 
 /** Screen tint per showcase tone — tokens only, no raw values. */
 const TONE: Record<ShowcaseItem["tone"], string> = {
@@ -37,9 +48,11 @@ const TONE: Record<ShowcaseItem["tone"], string> = {
 export function HeroSection({
   photos,
   socials,
+  resumeUrl,
 }: {
   photos: HeroPhoto[];
   socials: HeroSocial[];
+  resumeUrl: string;
 }) {
   return (
     <section className="relative overflow-hidden px-4 flex min-h-screen flex-col justify-center">
@@ -78,40 +91,45 @@ export function HeroSection({
 
             {/* Social links + resume */}
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
-              {socials.map(({ label, url, iconUrl }) => (
-                <Button
-                  key={label}
-                  asChild
-                  variant="outline"
-                  size="icon"
-                  className="rounded-full"
-                >
-                  <a
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={label}
+              {socials.map(({ label, url, iconUrl }) => {
+                const BrandIcon = SOCIAL_ICONS[label.trim().toLowerCase()];
+                return (
+                  <Button
+                    key={label}
+                    asChild
+                    variant="outline"
+                    size="icon"
+                    className="rounded-full"
                   >
-                    {iconUrl ? (
-                      <Image
-                        src={iconUrl}
-                        alt=""
-                        aria-hidden
-                        width={16}
-                        height={16}
-                        className="size-4 object-contain"
-                      />
-                    ) : (
-                      <span className="text-xs font-bold">
-                        {label.charAt(0).toUpperCase()}
-                      </span>
-                    )}
-                  </a>
-                </Button>
-              ))}
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={label}
+                    >
+                      {BrandIcon ? (
+                        <BrandIcon className="size-4" aria-hidden />
+                      ) : iconUrl ? (
+                        <Image
+                          src={iconUrl}
+                          alt=""
+                          aria-hidden
+                          width={16}
+                          height={16}
+                          className="size-4 object-contain"
+                        />
+                      ) : (
+                        <span className="text-xs font-bold">
+                          {label.charAt(0).toUpperCase()}
+                        </span>
+                      )}
+                    </a>
+                  </Button>
+                );
+              })}
 
               <Button asChild size="pill">
-                <a href={RESUME_HREF} target="_blank" rel="noopener noreferrer">
+                <a href={resumeUrl} target="_blank" rel="noopener noreferrer">
                   <Download className="size-4" />
                   Resume
                 </a>
