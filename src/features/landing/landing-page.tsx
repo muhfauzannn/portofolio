@@ -11,6 +11,9 @@ import { SkillsPage } from "../skills";
 /**
  * Landing feature — composes the page from self-contained sections.
  * Order follows the layout defined in DESIGN.md §5.
+ *
+ * The intro overlay gates itself client-side (localStorage), so it's shown at
+ * most once per hour.
  */
 export function LandingPage() {
   return (

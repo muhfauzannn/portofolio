@@ -33,7 +33,7 @@ export const ABOUT: AboutContent = {
     alt: "Portrait of Muhammad Fauzan",
   },
   paragraphs: [
-    "Hi, I'm Muhammad Fauzan — a developer who loves turning ideas into fast, polished, and playful web experiences. I care about the details: motion that feels right, layouts that breathe, and code that stays clean.",
+    "Hi, I'm Muhammad Fauzan, a developer who loves turning ideas into fast, polished, and playful web experiences. I care about the details: motion that feels right, layouts that breathe, and code that stays clean.",
     "I work mostly across the modern web stack, blending strong frontend craft with a solid understanding of what happens behind the scenes. When I'm not shipping, I'm usually exploring new tools, animations, and design ideas.",
   ],
   education: {

@@ -40,21 +40,9 @@ export function SiteFooter() {
           })}
         </nav>
 
-        <p className="order-last w-full text-center sm:order-none sm:w-auto">
-          © {new Date().getFullYear()} Muhammad Fauzan
+        <p className="order-last w-full text-center font-heading sm:w-auto">
+          © {new Date().getFullYear()} Muhammad Fauzan. All rights reserved.
         </p>
-
-        <div className="flex items-center gap-1.5">
-          <span>Created by</span>
-          <a
-            href="https://github.com/muhfauzannn"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-full bg-brand-purple px-3 py-1.5 text-brand-purple-foreground transition-colors hover:bg-brand-purple/85"
-          >
-            Fauzan
-          </a>
-        </div>
       </div>
     </footer>
   );

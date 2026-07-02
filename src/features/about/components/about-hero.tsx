@@ -1,27 +1,13 @@
 import Image from "next/image";
-import { ArrowUpRight } from "lucide-react";
-
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/motion/reveal";
-import { TransitionLink } from "@/components/motion/transition-link";
 import { ABOUT } from "@/features/about/data/about";
-
-/** First letters of the first two words — used when a logo image is missing. */
-function initials(name: string) {
-  return name
-    .split(" ")
-    .slice(0, 2)
-    .map((word) => word[0]?.toUpperCase() ?? "")
-    .join("");
-}
 
 /**
  * About hero — a single portrait paired with the intro copy.
  * Presentational only; all content comes from the `ABOUT` data module.
  */
 export function AboutHero() {
-  const { eyebrow, photo, paragraphs, education } = ABOUT;
+  const { eyebrow, paragraphs, education } = ABOUT;
 
   return (
     <section className="px-4">
@@ -38,7 +24,7 @@ export function AboutHero() {
 
           {paragraphs.map((text, i) => (
             <Reveal key={i} delay={200 + i * 80}>
-              <p className="mt-5 text-7xl sm:text-5xl">{text}</p>
+              <p className="mt-5 text-4xl sm:text-5xl">{text}</p>
             </Reveal>
           ))}
 

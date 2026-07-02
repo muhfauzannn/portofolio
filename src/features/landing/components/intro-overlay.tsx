@@ -12,9 +12,15 @@ gsap.registerPlugin(useGSAP);
  * First-load intro. Charcoal columns wipe up to fill the screen, a typing
  * effect cycles "hello" through a few languages, then "I'm Muhammad Fauzan"
  * appears and the name flies + scales to land pixel-matched on the hero <h1>
- * (#hero-name) — a FLIP-style shared-element handoff. Runs once per browser
- * session. Colors/motion follow DESIGN.md §4.
+ * (#hero-name) — a FLIP-style shared-element handoff. Shown at most once per
+ * hour: on completion it records a timestamp in localStorage and skips the
+ * whole animation while that's still fresh. Colors/motion follow DESIGN.md §4.
  */
+
+// localStorage key holding the epoch-ms timestamp of the last time the intro
+// finished. The intro is skipped while that's newer than INTRO_TTL_MS.
+const INTRO_SEEN_KEY = "intro_seen_at";
+const INTRO_TTL_MS = 60 * 60 * 1000; // 1 hour.
 
 const COLUMNS = Array.from({ length: 7 });
 const EASE = "power4.inOut";
@@ -39,6 +45,19 @@ export function IntroOverlay() {
       const name = nameRef.current;
       const heroName = document.querySelector<HTMLElement>("#hero-name");
       if (!root || !greet || !name || !heroName) return;
+
+      // Skip the whole intro if it played within the last hour. Runs in this
+      // layout effect (before paint), so the overlay is hidden and the hero
+      // revealed without the animation ever starting.
+      const seenAt = Number(localStorage.getItem(INTRO_SEEN_KEY));
+      if (seenAt && Date.now() - seenAt < INTRO_TTL_MS) {
+        gsap.set(heroName, { opacity: 1 });
+        gsap.set(root, { display: "none" });
+        return;
+      }
+      // We're about to play it — mark it seen now so even a reload mid-intro
+      // won't replay it for the next hour.
+      localStorage.setItem(INTRO_SEEN_KEY, String(Date.now()));
 
       // Columns cover the whole screen from the very first frame (their
       // default rendered state), so the hero is never visible behind them.
@@ -158,11 +177,22 @@ export function IntroOverlay() {
   );
 
   return (
-    <div
-      ref={rootRef}
-      aria-hidden
-      className="fixed inset-0 z-300 flex overflow-hidden"
-    >
+    <>
+      {/* Blocking guard — runs while the HTML is still parsing (before first
+          paint), so a returning visitor never sees a flash of the overlay. It
+          flags <html> and CSS hides #intro-overlay before it can paint. The
+          layout effect above is the fallback for client navigations. */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `try{var t=Number(localStorage.getItem('${INTRO_SEEN_KEY}'));if(t&&Date.now()-t<${INTRO_TTL_MS}){document.documentElement.setAttribute('data-intro-seen','')}}catch(e){}`,
+        }}
+      />
+      <div
+        id="intro-overlay"
+        ref={rootRef}
+        aria-hidden
+        className="fixed inset-0 z-300 flex overflow-hidden"
+      >
       {COLUMNS.map((_, i) => (
         <div
           key={i}
@@ -210,6 +240,7 @@ export function IntroOverlay() {
           </span>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

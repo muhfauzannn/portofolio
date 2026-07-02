@@ -6,6 +6,7 @@ import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { TransitionLink } from "@/components/motion/transition-link";
 import { type Project } from "@/features/projects/data/projects";
 
 const clamp = (n: number, min: number, max: number) =>
@@ -42,15 +43,23 @@ export function ProjectsCarousel({ projects }: { projects: Project[] }) {
   const onPointerDown = (e: React.PointerEvent) => {
     pointer.current = { id: e.pointerId, startX: e.clientX };
     moved.current = false;
-    setDragging(true);
-    e.currentTarget.setPointerCapture(e.pointerId);
+    // Note: we deliberately do NOT capture the pointer yet. Capturing on a plain
+    // tap swallows the follow-up `click`, which would stop the footer link (and
+    // side cards) from navigating. We only capture once a real drag begins.
   };
 
   const onPointerMove = (e: React.PointerEvent) => {
     if (!pointer.current || pointer.current.id !== e.pointerId) return;
     const width = stageRef.current?.offsetWidth ?? 1;
     const dx = e.clientX - pointer.current.startX;
-    if (Math.abs(dx) > 5) moved.current = true;
+    // First time the pointer crosses the threshold, promote it to a drag and
+    // capture so tracking survives the pointer leaving the stage.
+    if (!moved.current && Math.abs(dx) > 5) {
+      moved.current = true;
+      setDragging(true);
+      e.currentTarget.setPointerCapture(e.pointerId);
+    }
+    if (!moved.current) return;
     // Roughly one card-width of travel per slide.
     setDrag(clamp((dx / width) * 1.6, -1.2, 1.2));
   };
@@ -251,7 +260,7 @@ function ProjectCard({
                 {project.name}
               </p>
               <p className="mt-0.5 truncate text-xs font-medium tracking-wide text-brand-lime-foreground/70">
-                {project.tech.join(" · ")}
+                {project.techStack.map((t) => t.name).join(" · ")}
               </p>
             </div>
             <Button
@@ -261,14 +270,12 @@ function ProjectCard({
               className="rounded-full"
               tabIndex={active ? 0 : -1}
             >
-              <a
-                href={project.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`Open ${project.name}`}
+              <TransitionLink
+                href={`/projects/${project.slug}`}
+                aria-label={`View ${project.name}`}
               >
                 <ArrowUpRight />
-              </a>
+              </TransitionLink>
             </Button>
           </div>
         </div>
@@ -304,7 +311,7 @@ function ProjectVisual({ project }: { project: Project }) {
               {project.name}
             </p>
             <p className="mt-2 font-mono text-xs text-brand-cream/50">
-              {project.tech.join("  •  ")}
+              {project.techStack.map((t) => t.name).join("  •  ")}
             </p>
           </div>
         </div>
