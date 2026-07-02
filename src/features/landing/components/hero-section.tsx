@@ -1,17 +1,18 @@
 "use client";
 
 import * as React from "react";
-import type { CSSProperties } from "react";
+// import type { CSSProperties } from "react";
 import Image from "next/image";
 import { ImageIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
-import { Marquee } from "@/components/ui/marquee";
+// import { Badge } from "@/components/ui/badge";
+// import { Marquee } from "@/components/ui/marquee";
 import { Reveal } from "@/components/motion/reveal";
+import TextType from "@/components/motion/TextType";
 import {
   PHOTOS,
-  SHOWCASE,
+  // SHOWCASE,
   type ShowcaseItem,
 } from "@/features/landing/data/landing";
 
@@ -34,15 +35,28 @@ export function HeroSection() {
       <div className="mx-auto grid max-w-6xl items-center gap-10 text-center lg:grid-cols-[1.4fr_1fr] lg:gap-12 lg:text-left">
         <div>
           <Reveal delay={60} className="flex flex-col gap-0">
-            <p className="font-script text-4xl max-md:text-2xl">
+            <p className="font-script text-brand-purple text-4xl max-md:text-2xl">
               Hi, I&apos;m{" "}
             </p>
-            <h1 className="font-heading 
-            
-            
-            text-brand-purple text-4xl font-normal sm:text-7xl">
+            <h1
+              id="hero-name"
+              className="font-heading text-brand-charcoal text-5xl font-normal sm:text-8xl"
+            >
               Muhammad Fauzan
             </h1>
+            <TextType
+              as="p"
+              className="mt-3 font-heading text-2xl text-foreground sm:text-3xl"
+              text={[
+                "a Software Engineer",
+                "a Web Developer",
+                "a DevOps Engineer",
+              ]}
+              typingSpeed={70}
+              deletingSpeed={40}
+              pauseDuration={1800}
+              cursorClassName="text-brand-purple"
+            />
             <p className="mx-auto font-heading mt-6 max-w-xl text-base text-muted-foreground text-pretty sm:text-lg lg:mx-0">
               Welcome to my website portofolio, where I showcase my skills and
               projects as a web developer. Explore my work and get to know me
@@ -58,7 +72,7 @@ export function HeroSection() {
       </div>
 
       {/* Infinite reel of tilted showcase screens (§2C) */}
-      <Reveal delay={220}>
+      {/* <Reveal delay={220}>
         <div className="relative mt-16">
           <Marquee
             pauseOnHover
@@ -70,7 +84,7 @@ export function HeroSection() {
             ))}
           </Marquee>
         </div>
-      </Reveal>
+      </Reveal> */}
     </section>
   );
 }

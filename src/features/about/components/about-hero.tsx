@@ -25,22 +25,8 @@ export function AboutHero() {
 
   return (
     <section className="px-4">
-      <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-[0.5fr_1.5fr] lg:gap-16">
+      <div className="mx-auto flex flex-col max-w-6xl items-center gap-10  lg:gap-16">
         {/* Photo — offset brand block behind gives it a brutalist frame. */}
-        <Reveal className="relative mx-auto w-full max-w-[240px] lg:mx-0">
-          <div className="absolute -inset-3 -z-10 rotate-[-3deg] rounded-2xl bg-brand-lime" />
-          <div className="overflow-hidden rounded-2xl border border-border bg-brand-charcoal">
-            <Image
-              src={photo.src}
-              alt={photo.alt}
-              width={800}
-              height={1000}
-              priority
-              unoptimized
-              className="aspect-[4/5] h-auto w-full object-cover"
-            />
-          </div>
-        </Reveal>
 
         {/* Intro copy */}
         <div>
@@ -52,14 +38,12 @@ export function AboutHero() {
 
           {paragraphs.map((text, i) => (
             <Reveal key={i} delay={200 + i * 80}>
-              <p className="mt-5 text-base text-muted-foreground text-pretty sm:text-lg">
-                {text}
-              </p>
+              <p className="mt-5 text-7xl sm:text-5xl">{text}</p>
             </Reveal>
           ))}
 
           {/* Education — a single institution shown as a compact card. */}
-          <Reveal delay={200 + paragraphs.length * 80}>
+          <Reveal delay={200 + paragraphs.length * 80} className="w-full flex flex-col items-end">
             <p className="mt-8 font-script text-xl text-brand-purple sm:text-2xl">
               {education.label}
             </p>
@@ -84,6 +68,7 @@ export function AboutHero() {
                 </p>
               </div>
             </div>
+            <div></div>
           </Reveal>
         </div>
       </div>
