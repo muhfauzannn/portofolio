@@ -196,6 +196,9 @@ export function IntroOverlay() {
         {/* Name phase — "Muhammad Fauzan" hands off to the hero heading */}
         <div
           ref={nameWrapRef}
+          // Hidden in the markup too, so the SSR HTML never flashes the name
+          // before GSAP's layout effect runs (post-hydration).
+          style={{ opacity: 0 }}
           className="flex flex-col items-center gap-0 [grid-area:1/1]"
         >
           <span
