@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ArrowUpRight, MoonStar, Sparkles, Sun, X } from "lucide-react";
+import { ArrowUpRight, Sparkles, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -26,13 +26,6 @@ const EXPLORE: NavLink[] = [
 
 export function SiteNav() {
   const [open, setOpen] = React.useState(false);
-  const [dark, setDark] = React.useState(false);
-
-  const toggleTheme = React.useCallback(() => {
-    const next = !document.documentElement.classList.contains("dark");
-    document.documentElement.classList.toggle("dark", next);
-    setDark(next);
-  }, []);
 
   // Close on Escape.
   React.useEffect(() => {
@@ -114,15 +107,6 @@ export function SiteNav() {
             </TransitionLink>
 
             <div className="flex items-center gap-1.5">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-full"
-                onClick={toggleTheme}
-                aria-label="Toggle theme"
-              >
-                {dark ? <Sun /> : <MoonStar />}
-              </Button>
               <Button size="pill" className="hidden sm:inline-flex" asChild>
                 <TransitionLink href="/contact">Get started</TransitionLink>
               </Button>
