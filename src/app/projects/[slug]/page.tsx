@@ -3,22 +3,23 @@ import { notFound } from "next/navigation";
 
 import {
   ProjectDetailPage,
-  PROJECTS_CONTENT,
-  getProject,
+  getProjectBySlug,
+  getProjectSlugs,
 } from "@/features/projects";
 
 type PageProps = { params: Promise<{ slug: string }> };
 
 // Pre-render a static page per project.
-export function generateStaticParams() {
-  return PROJECTS_CONTENT.projects.map((project) => ({ slug: project.slug }));
+export async function generateStaticParams() {
+  const slugs = await getProjectSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const project = getProject(slug);
+  const project = await getProjectBySlug(slug);
   if (!project) return {};
   return {
     title: `${project.name} — Muhammad Fauzan`,
@@ -30,7 +31,7 @@ export async function generateMetadata({
 // feature, or 404s for an unknown slug.
 export default async function Page({ params }: PageProps) {
   const { slug } = await params;
-  const project = getProject(slug);
+  const project = await getProjectBySlug(slug);
   if (!project) notFound();
   return <ProjectDetailPage project={project} />;
 }

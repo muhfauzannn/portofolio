@@ -1,14 +1,16 @@
 import { Reveal } from "@/components/motion/reveal";
 import { ExperienceAccordion } from "@/features/experience/components/experience-accordion";
-import { EXPERIENCE } from "@/features/experience/data/experience";
+import { EXPERIENCE_HEADER } from "@/features/experience/data/experience";
+import { getExperience } from "@/features/experience/lib/queries";
 
 /**
  * Experience — a stack of long cards. Each shows only the institution name
  * until clicked, then unfurls the role, period and description. The section
  * header is a Server Component; the interactive accordion is a client leaf.
  */
-export function ExperienceTimeline() {
-  const { eyebrow, heading, items } = EXPERIENCE;
+export async function ExperienceTimeline() {
+  const { eyebrow, heading } = EXPERIENCE_HEADER;
+  const items = await getExperience();
 
   return (
     <section

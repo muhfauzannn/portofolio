@@ -8,11 +8,14 @@ import { Reveal } from "@/components/motion/reveal";
 import { SkillsFan } from "@/features/skills/components/skills-fan";
 import { GithubContributions } from "@/features/skills/components/github-contributions";
 import { GITHUB_USERNAME } from "@/features/skills/data/skills";
+import { getSkills } from "@/features/skills/lib/queries";
 
 /**
  * Skills feature — the fanned tool cards plus a live GitHub contribution graph.
+ * Server Component: reads the (cached) skills and passes them to the fan.
  */
-export function SkillsPage() {
+export async function SkillsPage() {
+  const skills = await getSkills();
   return (
     <div id="skills" className="relative flex min-h-full scroll-mt-28 flex-col">
       <MagneticCursor />
@@ -81,7 +84,7 @@ export function SkillsPage() {
           </div>
 
           <div className="mx-auto max-w-6xl pb-10">
-            <SkillsFan />
+            <SkillsFan skills={skills} />
           </div>
         </section>
       </main>

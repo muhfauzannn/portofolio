@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import { ArrowUpRight, Sparkles, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -142,28 +143,16 @@ export function SiteNav() {
                   onSelect={() => setOpen(false)}
                 />
 
-                {/* Feature card — a get-in-touch CTA. */}
-                <a
-                  href={EMAIL}
-                  onClick={() => setOpen(false)}
-                  className="group flex flex-col justify-between gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 text-brand-cream"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-[0.7rem] font-medium tracking-wide text-brand-cream/60 uppercase">
-                      Available for work
-                    </span>
-                    <Badge variant="lime">Open</Badge>
-                  </div>
-                  <div>
-                    <p className="font-heading text-lg leading-tight font-semibold">
-                      Let&apos;s work together
-                    </p>
-                    <span className="mt-2 inline-flex items-center gap-1 text-sm text-brand-cream/70 transition-colors group-hover:text-brand-lime">
-                      Get in touch
-                      <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                    </span>
-                  </div>
-                </a>
+                {/* Portrait image. */}
+                <div className="relative min-h-40 overflow-hidden rounded-2xl border border-white/10 bg-white/5">
+                  <Image
+                    src="/fauzan.webp"
+                    alt="Fauzan"
+                    fill
+                    sizes="(min-width: 640px) 20rem, 100vw"
+                    className="object-cover"
+                  />
+                </div>
               </div>
             </div>
           </div>

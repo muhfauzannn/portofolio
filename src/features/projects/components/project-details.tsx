@@ -27,7 +27,7 @@ export function ProjectDetails({ project }: { project: Project }) {
         <Row label="Tech stack">
           <div className="flex flex-wrap gap-2">
             {techStack.map((tech) => (
-              <TechBadge key={tech.slug} {...tech} />
+              <TechBadge key={tech.name} {...tech} />
             ))}
           </div>
         </Row>

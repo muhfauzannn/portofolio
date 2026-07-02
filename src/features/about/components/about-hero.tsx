@@ -1,13 +1,13 @@
 import Image from "next/image";
 import { Reveal } from "@/components/motion/reveal";
-import { ABOUT } from "@/features/about/data/about";
+import { type AboutContent } from "@/features/about/data/about";
 
 /**
  * About hero — a single portrait paired with the intro copy.
- * Presentational only; all content comes from the `ABOUT` data module.
+ * Presentational only; content is supplied by the server component.
  */
-export function AboutHero() {
-  const { eyebrow, paragraphs, education } = ABOUT;
+export function AboutHero({ content }: { content: AboutContent }) {
+  const { eyebrow, paragraphs, education } = content;
 
   return (
     <section className="px-4">
@@ -37,13 +37,15 @@ export function AboutHero() {
               {education.label}
             </p>
             <div className="mt-3 flex items-center gap-4 rounded-2xl">
-              <Image
-                src={education.logo.src}
-                alt={education.logo.alt}
-                width={50}
-                height={50}
-                className="rounded-lg object-contain"
-              />
+              {education.logo.src ? (
+                <Image
+                  src={education.logo.src}
+                  alt={education.logo.alt}
+                  width={50}
+                  height={50}
+                  className="rounded-lg object-contain"
+                />
+              ) : null}
 
               <div className="min-w-0">
                 <p className="font-heading text-base font-normal tracking-tight sm:text-2xl">
