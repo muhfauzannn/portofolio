@@ -1,10 +1,24 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { randomUUID } from "node:crypto";
+import convertHeic from "heic-convert";
 
 /**
  * Cloudflare R2 upload helper (S3-compatible).
  * All CMS images/logos go here; the public URL is stored in the DB.
  */
+
+/** HEIC/HEIF (iPhone) isn't renderable in most browsers, so we transcode to
+ *  JPEG on upload. Detected by MIME type or extension. */
+function isHeic(file: File): boolean {
+  const type = file.type.toLowerCase();
+  const name = file.name.toLowerCase();
+  return (
+    type === "image/heic" ||
+    type === "image/heif" ||
+    name.endsWith(".heic") ||
+    name.endsWith(".heif")
+  );
+}
 
 function required(name: string): string {
   const value = process.env[name];
@@ -45,15 +59,28 @@ export async function uploadToR2(
   keyPrefix: string,
 ): Promise<string> {
   const publicBase = required("R2_PUBLIC_URL").replace(/\/$/, "");
-  const key = `${keyPrefix}/${randomUUID()}.${extensionFor(file)}`;
-  const body = Buffer.from(await file.arrayBuffer());
+
+  let body = Buffer.from(await file.arrayBuffer());
+  let ext = extensionFor(file);
+  let contentType = file.type || "application/octet-stream";
+
+  // Transcode HEIC/HEIF → JPEG so uploaded photos render everywhere.
+  if (isHeic(file)) {
+    body = Buffer.from(
+      await convertHeic({ buffer: body, format: "JPEG", quality: 0.9 }),
+    );
+    ext = "jpg";
+    contentType = "image/jpeg";
+  }
+
+  const key = `${keyPrefix}/${randomUUID()}.${ext}`;
 
   await getClient().send(
     new PutObjectCommand({
       Bucket: required("R2_BUCKET"),
       Key: key,
       Body: body,
-      ContentType: file.type || "application/octet-stream",
+      ContentType: contentType,
     }),
   );
 

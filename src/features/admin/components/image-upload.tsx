@@ -67,7 +67,7 @@ export function ImageUpload({
         <input
           ref={inputRef}
           type="file"
-          accept="image/*"
+          accept="image/*,.heic,.heif"
           className="hidden"
           onChange={(e) => {
             const file = e.target.files?.[0];

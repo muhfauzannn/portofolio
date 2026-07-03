@@ -16,6 +16,15 @@ export type CanvasPhoto = {
   position: number;
 };
 
+/** A freehand scribble — a polyline of points in canvas space. */
+export type CanvasDoodle = {
+  id: string;
+  points: { x: number; y: number }[];
+  color: string;
+  strokeWidth: number;
+  position: number;
+};
+
 /** All canvas photos, in paint order. Cached under the `canvas` tag. */
 export const getCanvasPhotos = unstable_cache(
   async (): Promise<CanvasPhoto[]> => {
@@ -35,5 +44,24 @@ export const getCanvasPhotos = unstable_cache(
     }));
   },
   ["canvas-photos-all"],
+  { tags: [CACHE_TAGS.canvas] },
+);
+
+/** All canvas doodles, in paint order. Cached under the `canvas` tag. */
+export const getCanvasDoodles = unstable_cache(
+  async (): Promise<CanvasDoodle[]> => {
+    const rows = await db
+      .select()
+      .from(schema.canvasDoodle)
+      .orderBy(asc(schema.canvasDoodle.position));
+    return rows.map((r) => ({
+      id: r.id,
+      points: r.points,
+      color: r.color,
+      strokeWidth: r.strokeWidth,
+      position: r.position,
+    }));
+  },
+  ["canvas-doodles-all"],
   { tags: [CACHE_TAGS.canvas] },
 );

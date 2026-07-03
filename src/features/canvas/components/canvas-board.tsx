@@ -1,44 +1,76 @@
 "use client";
 
 import * as React from "react";
-import { ImagePlus, Loader2, Minus, Plus, Trash2 } from "lucide-react";
+import {
+  ImagePlus,
+  Loader2,
+  Minus,
+  Pencil,
+  Plus,
+  RotateCw,
+  Trash2,
+  Undo2,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
+  addCanvasDoodle,
   addCanvasPhoto,
+  deleteCanvasDoodle,
   deleteCanvasPhoto,
   updateCanvasPhoto,
 } from "@/features/canvas/lib/actions";
-import type { CanvasPhoto } from "@/features/canvas/lib/queries";
+import type {
+  CanvasDoodle,
+  CanvasPhoto,
+} from "@/features/canvas/lib/queries";
 
 const MIN_SCALE = 0.2;
 const MAX_SCALE = 4;
 const CENTER_TEXT =
   "this is not my photograph portofolio, it just me and my memories";
 
-type Transform = { x: number; y: number; scale: number };
+// Freehand pen palette (brand tokens as hex, stored per stroke).
+const DRAW_COLORS = ["#1a1a1a", "#6544ff", "#84ff44"];
+const DRAW_WIDTH = 4;
 
-// Active pointer gesture. `pan` moves the viewport; `drag`/`resize` edit a photo.
+// Image picker accepts everything the browser calls an image, plus HEIC/HEIF
+// (iPhone) explicitly — those are transcoded to JPEG server-side on upload.
+const IMAGE_ACCEPT = "image/*,.heic,.heif";
+
+type Transform = { x: number; y: number; scale: number };
+type Point = { x: number; y: number };
+type Draft = { points: Point[]; color: string; strokeWidth: number };
+
+// Active pointer gesture.
 type Interaction =
   | { type: "pan"; sx: number; sy: number; ox: number; oy: number }
   | { type: "drag"; id: string; sx: number; sy: number; px: number; py: number }
-  | { type: "resize"; id: string; sx: number; pw: number };
+  | { type: "resize"; id: string; sx: number; pw: number }
+  | { type: "rotate"; id: string; cx: number; cy: number; a0: number; pr: number }
+  | { type: "draw" };
 
 const clamp = (v: number, lo: number, hi: number) =>
   Math.min(hi, Math.max(lo, v));
 
+const toPath = (pts: Point[]) =>
+  pts.map((p, i) => `${i ? "L" : "M"}${p.x} ${p.y}`).join(" ");
+
 /**
  * Infinite, Figma-style gallery canvas. Everyone can pan (drag) and zoom
- * (wheel / buttons). When `editable`, photos can be dragged, resized, added and
- * deleted, and each change is persisted through the canvas server actions.
+ * (wheel / buttons). When `editable`, photos can be dragged, resized, rotated,
+ * added and deleted, and the admin can scribble freehand doodles — each change
+ * persisted through the canvas server actions.
  */
 export function CanvasBoard({
-  photos: initial,
+  photos: initialPhotos,
+  doodles: initialDoodles,
   editable,
 }: {
   photos: CanvasPhoto[];
+  doodles: CanvasDoodle[];
   editable: boolean;
 }) {
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -55,7 +87,7 @@ export function CanvasBoard({
     setTransformState(t);
   }, []);
 
-  const [photos, setPhotosState] = React.useState<CanvasPhoto[]>(initial);
+  const [photos, setPhotosState] = React.useState<CanvasPhoto[]>(initialPhotos);
   const photosRef = React.useRef(photos);
   const setPhotos = React.useCallback(
     (updater: (prev: CanvasPhoto[]) => CanvasPhoto[]) =>
@@ -74,10 +106,50 @@ export function CanvasBoard({
     [setPhotos],
   );
 
+  const [doodles, setDoodlesState] =
+    React.useState<CanvasDoodle[]>(initialDoodles);
+  const doodlesRef = React.useRef(doodles);
+  const setDoodles = React.useCallback(
+    (updater: (prev: CanvasDoodle[]) => CanvasDoodle[]) =>
+      setDoodlesState((prev) => {
+        const next = updater(prev);
+        doodlesRef.current = next;
+        return next;
+      }),
+    [],
+  );
+
+  const [draft, setDraftState] = React.useState<Draft | null>(null);
+  const draftRef = React.useRef(draft);
+  const setDraft = React.useCallback((d: Draft | null) => {
+    draftRef.current = d;
+    setDraftState(d);
+  }, []);
+
   const [selected, setSelected] = React.useState<string | null>(null);
   const [ready, setReady] = React.useState(false);
   const [uploading, setUploading] = React.useState(false);
+  // Temp ids of photos shown optimistically while their upload is in flight.
+  const [uploadingIds, setUploadingIds] = React.useState<Set<string>>(
+    () => new Set(),
+  );
+  const [drawMode, setDrawMode] = React.useState(false);
+  const [drawColor, setDrawColor] = React.useState(DRAW_COLORS[0]);
+  const [dragOver, setDragOver] = React.useState(false);
+
   const interaction = React.useRef<Interaction | null>(null);
+
+  // Screen (client) coords → canvas coords, using the live transform.
+  const screenToCanvas = React.useCallback((clientX: number, clientY: number) => {
+    const rect = containerRef.current?.getBoundingClientRect();
+    const t = transformRef.current;
+    const left = rect?.left ?? 0;
+    const top = rect?.top ?? 0;
+    return {
+      x: (clientX - left - t.x) / t.scale,
+      y: (clientY - top - t.y) / t.scale,
+    };
+  }, []);
 
   // Center the canvas origin (0,0) on screen once we can measure the viewport.
   React.useLayoutEffect(() => {
@@ -88,8 +160,7 @@ export function CanvasBoard({
     setReady(true);
   }, [setTransform]);
 
-  // Zoom toward an anchor point (in container-relative coords), keeping the
-  // canvas point under that anchor fixed.
+  // Zoom toward an anchor point (container-relative), keeping the point fixed.
   const zoomAt = React.useCallback(
     (anchorX: number, anchorY: number, factor: number) => {
       const t = transformRef.current;
@@ -104,7 +175,7 @@ export function CanvasBoard({
     [setTransform],
   );
 
-  // Wheel zoom — needs a non-passive listener so we can preventDefault.
+  // Wheel zoom — non-passive so we can preventDefault.
   React.useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -120,6 +191,23 @@ export function CanvasBoard({
     el.addEventListener("wheel", onWheel, { passive: false });
     return () => el.removeEventListener("wheel", onWheel);
   }, [zoomAt]);
+
+  // Persist a finished stroke, showing it optimistically under a temp id.
+  const commitDoodle = React.useCallback(
+    (d: Draft) => {
+      const tempId = `temp-${Date.now()}`;
+      setDoodles((prev) => [...prev, { id: tempId, ...d, position: prev.length }]);
+      void addCanvasDoodle(d)
+        .then((saved) =>
+          setDoodles((prev) => prev.map((x) => (x.id === tempId ? saved : x))),
+        )
+        .catch(() => {
+          setDoodles((prev) => prev.filter((x) => x.id !== tempId));
+          toast.error("Couldn't save scribble");
+        });
+    },
+    [setDoodles],
+  );
 
   // Global move/up so a gesture keeps tracking even off the pressed element.
   React.useEffect(() => {
@@ -143,12 +231,22 @@ export function CanvasBoard({
         updatePhoto(it.id, {
           width: clamp(it.pw + (e.clientX - it.sx) / s, 80, 900),
         });
+      } else if (it.type === "rotate") {
+        const angle = Math.atan2(e.clientY - it.cy, e.clientX - it.cx);
+        updatePhoto(it.id, {
+          rotation: it.pr + ((angle - it.a0) * 180) / Math.PI,
+        });
+      } else if (it.type === "draw") {
+        const pt = screenToCanvas(e.clientX, e.clientY);
+        const d = draftRef.current;
+        if (d) setDraft({ ...d, points: [...d.points, pt] });
       }
     };
     const onUp = () => {
       const it = interaction.current;
       interaction.current = null;
-      if (it && (it.type === "drag" || it.type === "resize")) {
+      if (!it) return;
+      if (it.type === "drag" || it.type === "resize" || it.type === "rotate") {
         const p = photosRef.current.find((x) => x.id === it.id);
         if (p) {
           void updateCanvasPhoto(p.id, {
@@ -158,6 +256,10 @@ export function CanvasBoard({
             rotation: Math.round(p.rotation),
           }).catch(() => toast.error("Couldn't save placement"));
         }
+      } else if (it.type === "draw") {
+        const d = draftRef.current;
+        setDraft(null);
+        if (d && d.points.length > 1) commitDoodle(d);
       }
     };
     window.addEventListener("pointermove", onMove);
@@ -166,10 +268,16 @@ export function CanvasBoard({
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
     };
-  }, [setTransform, updatePhoto]);
+  }, [setTransform, updatePhoto, screenToCanvas, setDraft, commitDoodle]);
 
-  // Background press → start panning (and deselect).
-  const onBackgroundPointerDown = (e: React.PointerEvent) => {
+  // Surface press → draw a stroke (draw mode) or pan (otherwise).
+  const onSurfacePointerDown = (e: React.PointerEvent) => {
+    if (editable && drawMode) {
+      const pt = screenToCanvas(e.clientX, e.clientY);
+      interaction.current = { type: "draw" };
+      setDraft({ points: [pt], color: drawColor, strokeWidth: DRAW_WIDTH });
+      return;
+    }
     const t = transformRef.current;
     interaction.current = {
       type: "pan",
@@ -205,6 +313,85 @@ export function CanvasBoard({
     }
   }
 
+  // Optimistic upload: paint a local preview at the drop point immediately,
+  // then swap in the saved record (same x/y/rotation, real R2 url) once the
+  // upload finishes. On failure the preview is removed.
+  const uploadAt = async (file: File, pos: Point) => {
+    const tempId = `temp-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const objectUrl = URL.createObjectURL(file);
+    const x = Math.round(pos.x);
+    const y = Math.round(pos.y);
+    const rotation = Math.round((Math.random() - 0.5) * 16);
+    const temp: CanvasPhoto = {
+      id: tempId,
+      imageUrl: objectUrl,
+      alt: "",
+      x,
+      y,
+      width: 240,
+      rotation,
+      position: photosRef.current.length,
+    };
+    setPhotos((prev) => [...prev, temp]);
+    setUploadingIds((prev) => new Set(prev).add(tempId));
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("x", String(x));
+      fd.append("y", String(y));
+      fd.append("rotation", String(rotation));
+      const saved = await addCanvasPhoto(fd);
+      // Preserve any edits the admin made to the preview while it uploaded.
+      setPhotos((prev) =>
+        prev.map((p) =>
+          p.id === tempId
+            ? { ...saved, x: p.x, y: p.y, width: p.width, rotation: p.rotation }
+            : p,
+        ),
+      );
+    } catch (err) {
+      setPhotos((prev) => prev.filter((p) => p.id !== tempId));
+      toast.error(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      URL.revokeObjectURL(objectUrl);
+      setUploadingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(tempId);
+        return next;
+      });
+    }
+  };
+
+  const isImageFile = (f: File) =>
+    f.type.startsWith("image/") || /\.(heic|heif)$/i.test(f.name);
+
+  // Drag-and-drop image files straight onto the canvas — each lands where it's
+  // dropped (converted to canvas coords). Admin-only.
+  const onDragOver = (e: React.DragEvent) => {
+    if (!editable) return;
+    if (!Array.from(e.dataTransfer.types).includes("Files")) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+    if (!dragOver) setDragOver(true);
+  };
+  const onDragLeave = (e: React.DragEvent) => {
+    // Ignore leaves into descendant elements; only clear when truly leaving.
+    if (e.currentTarget.contains(e.relatedTarget as Node | null)) return;
+    setDragOver(false);
+  };
+  const onDrop = (e: React.DragEvent) => {
+    if (!editable) return;
+    e.preventDefault();
+    setDragOver(false);
+    const files = Array.from(e.dataTransfer.files).filter(isImageFile);
+    if (files.length === 0) return;
+    const base = screenToCanvas(e.clientX, e.clientY);
+    // Cascade multiple files slightly so they don't stack exactly.
+    files.forEach((file, i) =>
+      void uploadAt(file, { x: base.x + i * 28, y: base.y + i * 28 }),
+    );
+  };
+
   async function removePhoto(id: string) {
     setPhotos((prev) => prev.filter((p) => p.id !== id));
     setSelected(null);
@@ -215,11 +402,48 @@ export function CanvasBoard({
     }
   }
 
+  async function undoDoodle() {
+    const last = doodlesRef.current[doodlesRef.current.length - 1];
+    if (!last) return;
+    setDoodles((prev) => prev.slice(0, -1));
+    if (last.id.startsWith("temp-")) return; // not persisted yet
+    try {
+      await deleteCanvasDoodle(last.id);
+    } catch {
+      toast.error("Undo failed");
+    }
+  }
+
+  // Begin rotating a photo around its on-screen center.
+  const startRotate = (e: React.PointerEvent, p: CanvasPhoto) => {
+    e.stopPropagation();
+    const rect = containerRef.current?.getBoundingClientRect();
+    const t = transformRef.current;
+    const cx = (rect?.left ?? 0) + t.x + p.x * t.scale;
+    const cy = (rect?.top ?? 0) + t.y + p.y * t.scale;
+    interaction.current = {
+      type: "rotate",
+      id: p.id,
+      cx,
+      cy,
+      a0: Math.atan2(e.clientY - cy, e.clientX - cx),
+      pr: p.rotation,
+    };
+  };
+
   return (
     <div
       ref={containerRef}
-      onPointerDown={onBackgroundPointerDown}
-      className="fixed inset-0 touch-none overflow-hidden bg-background select-none [cursor:grab] active:[cursor:grabbing]"
+      onPointerDown={onSurfacePointerDown}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
+      className={cn(
+        "fixed inset-0 touch-none overflow-hidden bg-background select-none",
+        editable && drawMode
+          ? "[cursor:crosshair]"
+          : "[cursor:grab] active:[cursor:grabbing]",
+      )}
     >
       {/* World layer — everything inside lives in canvas space and scales/pans. */}
       <div
@@ -263,7 +487,7 @@ export function CanvasBoard({
               key={p.id}
               data-photo
               onPointerDown={
-                editable
+                editable && !drawMode
                   ? (e) => {
                       e.stopPropagation();
                       setSelected(p.id);
@@ -280,7 +504,8 @@ export function CanvasBoard({
               }
               className={cn(
                 "absolute -translate-x-1/2 -translate-y-1/2 rounded-[2px] bg-brand-cream p-2.5 pb-8 shadow-2xl shadow-foreground/25 ring-1 ring-foreground/10",
-                editable && "[cursor:grab] active:[cursor:grabbing]",
+                editable && !drawMode && "[cursor:grab] active:[cursor:grabbing]",
+                drawMode && "pointer-events-none",
                 isSelected && "outline-2 outline-brand-purple",
               )}
               style={{
@@ -288,7 +513,7 @@ export function CanvasBoard({
                 top: p.y,
                 width: p.width,
                 transform: `translate(-50%, -50%) rotate(${p.rotation}deg)`,
-                zIndex: isSelected ? 1000 : i,
+                zIndex: isSelected ? 1000 : 10 + i,
               }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -298,6 +523,12 @@ export function CanvasBoard({
                 draggable={false}
                 className="pointer-events-none block w-full object-cover"
               />
+
+              {uploadingIds.has(p.id) ? (
+                <div className="pointer-events-none absolute inset-2.5 bottom-8 grid place-items-center bg-brand-cream/40 backdrop-blur-[1px]">
+                  <Loader2 className="size-6 animate-spin text-brand-charcoal" />
+                </div>
+              ) : null}
 
               {isSelected ? (
                 <>
@@ -310,6 +541,17 @@ export function CanvasBoard({
                   >
                     <Trash2 className="size-3.5" />
                   </button>
+
+                  {/* Rotate handle (top-center). */}
+                  <button
+                    type="button"
+                    aria-label="Rotate photo"
+                    onPointerDown={(e) => startRotate(e, p)}
+                    className="absolute -top-9 left-1/2 grid size-7 -translate-x-1/2 place-items-center rounded-full border-2 border-brand-purple bg-brand-cream text-brand-purple shadow-lg [cursor:grab] active:[cursor:grabbing]"
+                  >
+                    <RotateCw className="size-3.5" />
+                  </button>
+
                   {/* Resize handle (bottom-right). */}
                   <span
                     onPointerDown={(e) => {
@@ -328,12 +570,51 @@ export function CanvasBoard({
             </div>
           );
         })}
+
+        {/* Doodle layer — scribbles paint above photos. */}
+        <svg
+          aria-hidden
+          className="pointer-events-none absolute"
+          style={{ left: -8000, top: -8000, width: 16000, height: 16000, zIndex: 500 }}
+          viewBox="-8000 -8000 16000 16000"
+        >
+          {doodles.map((d) => (
+            <path
+              key={d.id}
+              d={toPath(d.points)}
+              fill="none"
+              stroke={d.color}
+              strokeWidth={d.strokeWidth}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          ))}
+          {draft ? (
+            <path
+              d={toPath(draft.points)}
+              fill="none"
+              stroke={draft.color}
+              strokeWidth={draft.strokeWidth}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          ) : null}
+        </svg>
       </div>
 
+      {/* Drag-and-drop hint — shown while dragging image files over the board. */}
+      {editable && dragOver ? (
+        <div className="pointer-events-none absolute inset-3 z-50 grid place-items-center rounded-2xl border-2 border-dashed border-brand-purple bg-brand-purple/5">
+          <p className="rounded-full bg-brand-charcoal px-4 py-2 text-sm font-medium text-brand-cream">
+            Drop image to add it here
+          </p>
+        </div>
+      ) : null}
+
       {/* Empty-state hint for admins. */}
-      {editable && photos.length === 0 ? (
+      {editable && photos.length === 0 && doodles.length === 0 ? (
         <p className="pointer-events-none absolute inset-x-0 bottom-28 text-center text-sm text-muted-foreground">
-          Add a photo to start your board.
+          Add a photo or scribble to start your board.
         </p>
       ) : null}
 
@@ -368,11 +649,11 @@ export function CanvasBoard({
 
       {/* Admin toolbar. */}
       {editable ? (
-        <div className="absolute bottom-4 left-4">
+        <div className="absolute bottom-4 left-4 flex flex-wrap items-center gap-2">
           <input
             ref={fileRef}
             type="file"
-            accept="image/*"
+            accept={IMAGE_ACCEPT}
             className="hidden"
             onChange={(e) => {
               const file = e.target.files?.[0];
@@ -392,6 +673,46 @@ export function CanvasBoard({
             )}
             Add photo
           </Button>
+
+          <Button
+            type="button"
+            size="pill"
+            variant={drawMode ? "default" : "outline"}
+            onClick={() => {
+              setDrawMode((v) => !v);
+              setSelected(null);
+            }}
+          >
+            <Pencil className="size-4" />
+            {drawMode ? "Drawing" : "Draw"}
+          </Button>
+
+          {drawMode ? (
+            <div className="flex items-center gap-1 rounded-full border border-border bg-card/90 p-1 shadow-lg backdrop-blur">
+              {DRAW_COLORS.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  aria-label={`Pen color ${c}`}
+                  onClick={() => setDrawColor(c)}
+                  style={{ backgroundColor: c }}
+                  className={cn(
+                    "size-6 rounded-full ring-2 transition",
+                    drawColor === c ? "ring-brand-purple" : "ring-transparent",
+                  )}
+                />
+              ))}
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-label="Undo last scribble"
+                onClick={undoDoodle}
+              >
+                <Undo2 className="size-4" />
+              </Button>
+            </div>
+          ) : null}
         </div>
       ) : null}
     </div>

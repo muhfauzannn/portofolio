@@ -207,3 +207,16 @@ export const canvasPhoto = pgTable("canvas_photo", {
   rotation: integer("rotation").notNull().default(0),
   position: integer("position").notNull().default(0),
 });
+
+export type DoodlePoint = { x: number; y: number };
+
+/** A freehand scribble on the canvas — a polyline of points in canvas space. */
+export const canvasDoodle = pgTable("canvas_doodle", {
+  id: text("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  points: jsonb("points").$type<DoodlePoint[]>().notNull().default([]),
+  color: text("color").notNull().default("#1a1a1a"),
+  strokeWidth: integer("stroke_width").notNull().default(4),
+  position: integer("position").notNull().default(0),
+});

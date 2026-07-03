@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
+  // heic-convert bundles a libheif WASM; keep it external so the bundler
+  // doesn't try to inline the WASM/binary and break the server build.
+  serverExternalPackages: ["heic-convert"],
   experimental: {
     // CMS image uploads go through a Server Action; raise the request body
     // limit from Next's 1MB default so larger images upload successfully.
