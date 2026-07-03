@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { TransitionProvider } from "@/components/motion/page-transition";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next";
 
 // Display / headings — Haffer XH
 const hafferXH = localFont({
@@ -133,6 +134,7 @@ export default function RootLayout({
           <TransitionProvider>{children}</TransitionProvider>
         </TooltipProvider>
         <Toaster />
+        <Analytics />
       </body>
     </html>
   );
