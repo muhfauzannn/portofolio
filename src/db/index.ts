@@ -9,21 +9,26 @@ if (!process.env.DATABASE_URL) {
 
 // Neon's free-tier compute scales to zero and cold-starts on demand, so the
 // first HTTP query while it wakes can throw "fetch failed" (a connection that
-// never established). Retry those transient network throws with a short backoff
-// so a wake-up blip doesn't surface as a 500. Only *thrown* fetches are retried
-// — a failed connection means the query never ran, so this is safe for writes
-// too (an HTTP error from the server returns a Response and is not retried).
+// never established). Retry those transient network throws with exponential
+// backoff — long enough to ride out a multi-second wake-up (~6s total) — so a
+// cold start doesn't surface as a 500. Only *thrown* fetches are retried: a
+// failed connection means the query never ran, so this is safe for writes too
+// (an HTTP error from the server returns a Response and is not retried).
+const MAX_DB_ATTEMPTS = 5;
 neonConfig.fetchFunction = async (
   input: RequestInfo | URL,
   init?: RequestInit,
 ) => {
   let lastError: unknown;
-  for (let attempt = 0; attempt < 3; attempt++) {
+  for (let attempt = 0; attempt < MAX_DB_ATTEMPTS; attempt++) {
     try {
       return await fetch(input, init);
     } catch (err) {
       lastError = err;
-      await new Promise((resolve) => setTimeout(resolve, 250 * (attempt + 1)));
+      if (attempt < MAX_DB_ATTEMPTS - 1) {
+        const delay = Math.min(3000, 400 * 2 ** attempt);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
     }
   }
   throw lastError;

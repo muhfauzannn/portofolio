@@ -16,7 +16,7 @@ import type { CanvasPhoto } from "@/features/canvas/lib/queries";
 const MIN_SCALE = 0.2;
 const MAX_SCALE = 4;
 const CENTER_TEXT =
-  "this is not my photographic portofolio, this just me and my memories";
+  "this is not my photograph portofolio, it just me and my memories";
 
 type Transform = { x: number; y: number; scale: number };
 
@@ -251,7 +251,7 @@ export function CanvasBoard({
           className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 text-center"
           style={{ left: 0, top: 0, width: 620 }}
         >
-          <p className="font-heading text-3xl leading-tight font-semibold text-balance text-brand-charcoal sm:text-4xl">
+          <p className="font-heading text-4xl leading-tight font-normal text-balance text-brand-charcoal sm:text-6xl">
             {CENTER_TEXT}
           </p>
         </div>
