@@ -240,7 +240,11 @@ export function CanvasBoard({
         const prev = pinch.current;
         const t = transformRef.current;
         if (prev.dist > 0) {
-          const scale = clamp(t.scale * (dist / prev.dist), MIN_SCALE, MAX_SCALE);
+          const scale = clamp(
+            t.scale * (dist / prev.dist),
+            MIN_SCALE,
+            MAX_SCALE,
+          );
           const k = scale / t.scale;
           // Anchor the midpoint while scaling, then follow its drift (two-finger pan).
           setTransform({
@@ -384,7 +388,10 @@ export function CanvasBoard({
       contentType = "image/jpeg";
     }
 
-    const { uploadUrl, url } = await createCanvasUploadUrl({ ext, contentType });
+    const { uploadUrl, url } = await createCanvasUploadUrl({
+      ext,
+      contentType,
+    });
     const res = await fetch(uploadUrl, {
       method: "PUT",
       headers: { "Content-Type": contentType },
@@ -751,7 +758,7 @@ export function CanvasBoard({
 
       {/* Admin toolbar. */}
       {editable ? (
-        <div className="absolute bottom-4 left-4 flex flex-wrap items-center gap-2">
+        <div className="absolute bottom-4 left-4 flex flex-col flex-wrap items-center gap-2">
           <input
             ref={fileRef}
             type="file"
@@ -776,45 +783,48 @@ export function CanvasBoard({
             Add photo
           </Button>
 
-          <Button
-            type="button"
-            size="pill"
-            variant={drawMode ? "default" : "outline"}
-            onClick={() => {
-              setDrawMode((v) => !v);
-              setSelected(null);
-            }}
-          >
-            <Pencil className="size-4" />
-            {drawMode ? "Drawing" : "Draw"}
-          </Button>
-
-          {drawMode ? (
-            <div className="flex items-center gap-1 rounded-full border border-border bg-card/90 p-1 shadow-lg backdrop-blur">
-              {DRAW_COLORS.map((c) => (
-                <button
-                  key={c}
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              size="pill"
+              variant={drawMode ? "default" : "outline"}
+              onClick={() => {
+                setDrawMode((v) => !v);
+                setSelected(null);
+              }}
+            >
+              <Pencil className="size-4" />
+              {drawMode ? "Drawing" : "Draw"}
+            </Button>
+            {drawMode ? (
+              <div className="flex items-center gap-1 rounded-full border border-border bg-card/90 p-1 shadow-lg backdrop-blur">
+                {DRAW_COLORS.map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    aria-label={`Pen color ${c}`}
+                    onClick={() => setDrawColor(c)}
+                    style={{ backgroundColor: c }}
+                    className={cn(
+                      "size-6 rounded-full ring-2 transition",
+                      drawColor === c
+                        ? "ring-brand-purple"
+                        : "ring-transparent",
+                    )}
+                  />
+                ))}
+                <Button
                   type="button"
-                  aria-label={`Pen color ${c}`}
-                  onClick={() => setDrawColor(c)}
-                  style={{ backgroundColor: c }}
-                  className={cn(
-                    "size-6 rounded-full ring-2 transition",
-                    drawColor === c ? "ring-brand-purple" : "ring-transparent",
-                  )}
-                />
-              ))}
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                aria-label="Undo last scribble"
-                onClick={undoDoodle}
-              >
-                <Undo2 className="size-4" />
-              </Button>
-            </div>
-          ) : null}
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Undo last scribble"
+                  onClick={undoDoodle}
+                >
+                  <Undo2 className="size-4" />
+                </Button>
+              </div>
+            ) : null}
+          </div>
         </div>
       ) : null}
     </div>
