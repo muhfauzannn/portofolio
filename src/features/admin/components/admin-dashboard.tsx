@@ -86,7 +86,7 @@ export function AdminDashboard({
           <ExperienceEditor items={experience} />
         </TabsContent>
         <TabsContent value="projects">
-          <ProjectsEditor projects={projects} />
+          <ProjectsEditor projects={projects} skills={skills} />
         </TabsContent>
         <TabsContent value="skills">
           <SkillsEditor skills={skills} />

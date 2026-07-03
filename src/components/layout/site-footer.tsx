@@ -1,14 +1,14 @@
-import { TransitionLink } from "@/components/motion/transition-link";
+// import { TransitionLink } from "@/components/motion/transition-link";
 import { FooterWordmark } from "@/components/layout/footer-wordmark";
 
-type FooterLink = { label: string; href: string };
+// type FooterLink = { label: string; href: string };
 
-const LINKS: FooterLink[] = [
-  { label: "Work", href: "#top" },
-  { label: "About", href: "/about" },
-  { label: "Skills", href: "/skills" },
-  { label: "Contact", href: "/contact" },
-];
+// const LINKS: FooterLink[] = [
+//   { label: "Work", href: "#top" },
+//   { label: "About", href: "/about" },
+//   { label: "Skills", href: "/skills" },
+//   { label: "Contact", href: "/contact" },
+// ];
 
 /**
  * Site footer — a giant overflowing wordmark (FAUZAN, repeated and clipped at
@@ -24,8 +24,8 @@ export function SiteFooter() {
       <span className="sr-only">Muhammad Fauzan</span>
 
       {/* Meta bar. */}
-      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-4 px-4 pt-8 pb-8 font-mono text-[0.7rem] tracking-widest text-muted-foreground uppercase sm:px-6">
-        <nav className="flex flex-wrap items-center gap-1.5">
+      <div className="flex flex-wrap items-center justify-end gap-x-6 gap-y-4 px-4 py-4 font-mono text-[0.7rem] tracking-widest text-muted-foreground uppercase sm:px-6">
+        {/* <nav className="flex flex-wrap items-center gap-1.5">
           {LINKS.map((link) => {
             const Cmp = link.href.startsWith("/") ? TransitionLink : "a";
             return (
@@ -38,7 +38,7 @@ export function SiteFooter() {
               </Cmp>
             );
           })}
-        </nav>
+        </nav> */}
 
         <p className="order-last w-full text-center font-heading sm:w-auto">
           © {new Date().getFullYear()} Muhammad Fauzan. All rights reserved.

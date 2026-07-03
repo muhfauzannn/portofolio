@@ -26,7 +26,7 @@ function BulletList({
   return (
     <div>
       <Reveal delay={delay}>
-        <p className="font-mono text-[0.7rem] tracking-widest text-muted-foreground uppercase">
+        <p className="font-mono text-[0.7rem] tracking-widest text-muted-foreground">
           {label}
         </p>
       </Reveal>

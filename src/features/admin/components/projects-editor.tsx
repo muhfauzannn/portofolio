@@ -1,10 +1,12 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Loader2, Plus, Save, Trash2 } from "lucide-react";
+import { Check, Loader2, Plus, Save, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,7 +19,7 @@ import {
   saveProject,
   type ProjectInput,
 } from "@/features/admin/lib/actions";
-import type { ProjectRow } from "@/features/admin/lib/data";
+import type { ProjectRow, SkillRow } from "@/features/admin/lib/data";
 
 function fromRow(row: ProjectRow): ProjectInput {
   return {
@@ -58,18 +60,25 @@ const BLANK: ProjectInput = {
   position: 0,
 };
 
-export function ProjectsEditor({ projects }: { projects: ProjectRow[] }) {
+export function ProjectsEditor({
+  projects,
+  skills,
+}: {
+  projects: ProjectRow[];
+  skills: SkillRow[];
+}) {
   const [drafts, setDrafts] = React.useState<ProjectInput[]>([]);
 
   return (
     <div className="flex flex-col gap-4">
       {projects.map((row) => (
-        <ProjectCard key={row.id} initial={fromRow(row)} />
+        <ProjectCard key={row.id} initial={fromRow(row)} skills={skills} />
       ))}
       {drafts.map((draft, i) => (
         <ProjectCard
           key={`draft-${i}`}
           initial={{ ...draft, position: projects.length + i }}
+          skills={skills}
           defaultOpen
           onSaved={() => setDrafts((d) => d.filter((_, j) => j !== i))}
         />
@@ -91,10 +100,12 @@ export function ProjectsEditor({ projects }: { projects: ProjectRow[] }) {
 
 function ProjectCard({
   initial,
+  skills,
   defaultOpen = false,
   onSaved,
 }: {
   initial: ProjectInput;
+  skills: SkillRow[];
   defaultOpen?: boolean;
   onSaved?: () => void;
 }) {
@@ -210,6 +221,70 @@ function ProjectCard({
             {/* Tech stack */}
             <div className="rounded-xl border border-border p-3">
               <p className="mb-2 text-sm font-medium">Tech stack</p>
+
+              {/* Pick from existing skills — toggles the skill in/out of the
+                  stack (matched by name). Manual entries below still work. */}
+              {skills.length > 0 ? (
+                <div className="mb-3">
+                  <p className="mb-2 text-xs text-muted-foreground">
+                    Pick from your skills
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {skills.map((skill) => {
+                      const active = state.techStack.some(
+                        (t) => t.name === skill.name,
+                      );
+                      return (
+                        <button
+                          key={skill.id}
+                          type="button"
+                          onClick={() =>
+                            set(
+                              "techStack",
+                              active
+                                ? state.techStack.filter(
+                                    (t) => t.name !== skill.name,
+                                  )
+                                : [
+                                    ...state.techStack,
+                                    {
+                                      name: skill.name,
+                                      logoUrl: skill.logoUrl,
+                                    },
+                                  ],
+                            )
+                          }
+                          className={cn(
+                            "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
+                            active
+                              ? "border-transparent bg-primary text-primary-foreground"
+                              : "border-border bg-card hover:bg-accent",
+                          )}
+                        >
+                          {active ? (
+                            <Check className="size-3.5" />
+                          ) : skill.logoUrl ? (
+                            <Image
+                              src={skill.logoUrl}
+                              alt=""
+                              aria-hidden
+                              width={16}
+                              height={16}
+                              className="size-4 object-contain"
+                            />
+                          ) : null}
+                          {skill.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <p className="mb-3 text-xs text-muted-foreground">
+                  Add skills in the Skills tab to pick them here.
+                </p>
+              )}
+
               <div className="flex flex-col gap-2">
                 {state.techStack.map((tech, i) => (
                   <div key={i} className="flex items-end gap-2">

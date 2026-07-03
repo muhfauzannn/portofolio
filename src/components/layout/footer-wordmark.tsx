@@ -57,7 +57,7 @@ export function FooterWordmark() {
 
   return (
     <div ref={ref} aria-hidden className="flex justify-center overflow-hidden">
-      <span className="font-heading text-[16vw] leading-[0.8] font-bold tracking-tighter whitespace-nowrap text-foreground uppercase select-none">
+      <span className="font-heading mb-8 text-[18vw] leading-[0.8] font-bold tracking-tighter whitespace-nowrap text-foreground uppercase select-none">
         {letters.map((ch, i) => (
           <span
             key={i}

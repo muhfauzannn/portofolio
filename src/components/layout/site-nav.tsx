@@ -2,14 +2,23 @@
 
 import * as React from "react";
 import Image from "next/image";
-import { ArrowUpRight, Sparkles, X } from "lucide-react";
+import { ArrowUpRight, Asterisk, Mail, X } from "lucide-react";
+import type { IconType } from "react-icons";
+import { SiGithub, SiInstagram } from "react-icons/si";
+import { LuLinkedin } from "react-icons/lu";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TransitionLink } from "@/components/motion/transition-link";
 
-type NavLink = { label: string; href: string; badge?: string; meta?: string };
+type NavLink = {
+  label: string;
+  href: string;
+  badge?: string;
+  meta?: string;
+  icon?: IconType;
+};
 
 const EMAIL = "mailto:fauzannmuhh@gmail.com";
 
@@ -23,10 +32,12 @@ const SECTIONS: NavLink[] = [
 ];
 
 const CONNECT: NavLink[] = [
-  { label: "GitHub", href: "https://github.com/muhfauzannn" },
+  { label: "GitHub", href: "https://github.com/muhfauzannn", icon: SiGithub },
   // TODO: replace with your real LinkedIn URL.
-  { label: "LinkedIn", href: "#" },
-  { label: "Email", href: EMAIL },
+  { label: "LinkedIn", href: "#", icon: LuLinkedin },
+  // TODO: replace with your real Instagram URL.
+  { label: "Instagram", href: "#", icon: SiInstagram },
+  { label: "Email", href: EMAIL, icon: Mail },
 ];
 
 export function SiteNav() {
@@ -103,12 +114,10 @@ export function SiteNav() {
 
             <TransitionLink
               href="/"
+              aria-label="Home"
               className="flex items-center gap-2 font-heading font-bold"
             >
-              <span className="grid size-7 place-items-center rounded-full bg-brand-lime text-brand-lime-foreground">
-                <Sparkles className="size-4" />
-              </span>
-              <span className="tracking-tight">Fauzan</span>
+              <Asterisk className="size-7 text-brand-lime" />
             </TransitionLink>
 
             <div className="flex items-center gap-1.5">
@@ -173,7 +182,7 @@ function MenuColumn({
 }) {
   return (
     <div className="rounded-2xl bg-white/5 p-2">
-      <p className="px-2 pt-1.5 pb-1 text-[0.7rem] font-medium tracking-wide text-brand-cream/50 uppercase">
+      <p className="px-2 pt-1.5 pb-1 text-[0.7rem] font-medium tracking-wide text-brand-cream/50">
         {title}
       </p>
       <ul>
@@ -193,6 +202,12 @@ function MenuColumn({
                 className="group flex items-center justify-between gap-2 rounded-xl px-2 py-2 text-sm font-medium transition-colors hover:bg-white/10 hover:text-brand-cream"
               >
                 <span className="flex items-center gap-2">
+                  {link.icon ? (
+                    <link.icon
+                      className="size-4 text-brand-cream/60"
+                      aria-hidden
+                    />
+                  ) : null}
                   {link.label}
                   {link.badge ? (
                     <Badge variant="purple" className="text-[0.65rem]">

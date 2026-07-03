@@ -1,22 +1,24 @@
 "use client";
 
 import * as React from "react";
+import { Asterisk } from "lucide-react";
 
 /**
  * Custom magnetic cursor accent (DESIGN.md §6.1).
- * A lime dot that lags behind the pointer to create a sense of magnetism.
- * Hidden on touch devices and when reduced motion is requested.
+ * A lime asterisk that lags behind the pointer for a sense of magnetism.
+ * Over interactive targets it grows. Hidden on touch devices and when
+ * reduced motion is requested.
  */
 export function MagneticCursor() {
-  const dotRef = React.useRef<HTMLDivElement | null>(null);
+  const iconRef = React.useRef<HTMLDivElement | null>(null);
 
   React.useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const fine = window.matchMedia("(pointer: fine)").matches;
     if (reduce || !fine) return;
 
-    const dot = dotRef.current;
-    if (!dot) return;
+    const icon = iconRef.current;
+    if (!icon) return;
 
     let mouseX = window.innerWidth / 2;
     let mouseY = window.innerHeight / 2;
@@ -27,35 +29,43 @@ export function MagneticCursor() {
     const onMove = (e: MouseEvent) => {
       mouseX = e.clientX;
       mouseY = e.clientY;
-      dot.style.opacity = "1";
-      // Grow over interactive targets for a subtle hover magnet.
+      icon.style.opacity = "1";
       const interactive = (e.target as HTMLElement)?.closest(
-        "a,button,[role='button']"
+        "a,button,[role='button']",
       );
-      dot.style.transform = interactive ? "scale(2.4)" : "scale(1)";
+      icon.dataset.active = interactive ? "true" : "false";
+    };
+
+    const onLeave = () => {
+      icon.style.opacity = "0";
     };
 
     const tick = () => {
-      x += (mouseX - x) * 0.18;
-      y += (mouseY - y) * 0.18;
-      dot.style.left = `${x}px`;
-      dot.style.top = `${y}px`;
+      x += (mouseX - x) * 0.22;
+      y += (mouseY - y) * 0.22;
+      icon.style.left = `${x}px`;
+      icon.style.top = `${y}px`;
       raf = requestAnimationFrame(tick);
     };
 
     window.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseleave", onLeave);
     raf = requestAnimationFrame(tick);
     return () => {
       window.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseleave", onLeave);
       cancelAnimationFrame(raf);
     };
   }, []);
 
   return (
     <div
-      ref={dotRef}
+      ref={iconRef}
       aria-hidden
-      className="pointer-events-none fixed z-[100] hidden size-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-lime opacity-0 mix-blend-difference transition-[transform,opacity] duration-200 ease-out md:block"
-    />
+      data-active="false"
+      className="pointer-events-none fixed z-100 hidden -translate-x-1/2 -translate-y-1/2 opacity-0 mix-blend-difference transition-[transform,opacity] duration-200 ease-out data-[active=true]:scale-[1.8] md:block"
+    >
+      <Asterisk className="size-6 text-brand-lime" />
+    </div>
   );
 }

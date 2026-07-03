@@ -3,7 +3,7 @@
 import * as React from "react";
 // import type { CSSProperties } from "react";
 import Image from "next/image";
-import { Download, ImageIcon } from "lucide-react";
+import { Download, ImageIcon, Mail } from "lucide-react";
 import type { IconType } from "react-icons";
 import { SiGithub, SiInstagram } from "react-icons/si";
 import { LuLinkedin } from "react-icons/lu";
@@ -22,6 +22,8 @@ import {
   type HeroPhoto,
   type HeroSocial,
 } from "@/features/landing/lib/queries";
+
+const EMAIL = "mailto:fauzannmuhh@gmail.com";
 
 /** Per-card resting tilt so the pile looks hand-scattered. */
 const PHOTO_TILT = [-6, 5, -3, 7, -4];
@@ -85,7 +87,7 @@ export function HeroSection({
             />
             <p className="mx-auto font-heading mt-6 max-w-xl text-base text-muted-foreground text-pretty sm:text-lg lg:mx-0">
               This is my portfolio, where I transform caffeine and late-night
-              debugging into actual, working solutions. Take a look around, and
+              coding into actual, working solutions. Take a look around, and
               don't hesitate to reach out.
             </p>
 
@@ -127,6 +129,17 @@ export function HeroSection({
                   </Button>
                 );
               })}
+
+              <Button
+                asChild
+                variant="outline"
+                size="icon"
+                className="rounded-full"
+              >
+                <a href={EMAIL} aria-label="Email">
+                  <Mail className="size-4" aria-hidden />
+                </a>
+              </Button>
 
               <Button asChild size="pill">
                 <a href={resumeUrl} target="_blank" rel="noopener noreferrer">

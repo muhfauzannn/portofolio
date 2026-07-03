@@ -75,12 +75,6 @@ export async function SkillsPage() {
                 Skills &amp; Tools
               </h1>
             </Reveal>
-            <Reveal delay={140}>
-              <p className="mx-auto mt-4 max-w-md text-base text-muted-foreground text-pretty">
-                The tools I reach for when designing and building for the web.
-                Hover a card to see what it is.
-              </p>
-            </Reveal>
           </div>
 
           <div className="mx-auto max-w-6xl pb-10">
