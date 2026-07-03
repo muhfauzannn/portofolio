@@ -3,7 +3,7 @@ import { ProjectsCarousel } from "@/features/projects/components/projects-carous
 import { getProjects } from "@/features/projects/lib/queries";
 
 // Fixed section header (chrome, not user-editable).
-const PROJECTS_HEADER = { eyebrow: "Selected work", heading: "Projects" };
+const PROJECTS_HEADER = { eyebrow: "A glimpse of my work", heading: "Projects" };
 
 /**
  * Projects feature — a section header over a 3D coverflow carousel. Server
