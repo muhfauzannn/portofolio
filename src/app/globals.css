@@ -153,6 +153,11 @@
     @apply bg-background text-foreground;
     font-feature-settings: "ss01", "cv01";
   }
+  /* Highlighting text paints it in the brand lime. */
+  ::selection {
+    background-color: var(--brand-lime);
+    color: var(--brand-lime-foreground);
+  }
   html {
     @apply font-sans;
   }
