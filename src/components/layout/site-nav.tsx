@@ -158,7 +158,7 @@ export function SiteNav() {
                 {/* Portrait image. */}
                 <div className="relative min-h-40 overflow-hidden rounded-2xl border border-white/10 bg-white/5">
                   <Image
-                    src="/fauzan.webp"
+                    src="/pixel-me.png"
                     alt="Fauzan"
                     fill
                     sizes="(min-width: 640px) 20rem, 100vw"
