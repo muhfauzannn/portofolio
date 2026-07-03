@@ -142,6 +142,10 @@ export function CanvasBoard({
   const [dragOver, setDragOver] = React.useState(false);
 
   const interaction = React.useRef<Interaction | null>(null);
+  // Active touch pointers (id → client coords) + the in-progress pinch, used to
+  // drive two-finger pinch-zoom on mobile.
+  const pointers = React.useRef<Map<number, Point>>(new Map());
+  const pinch = React.useRef<{ dist: number; mid: Point } | null>(null);
 
   // Screen (client) coords → canvas coords, using the live transform.
   const screenToCanvas = React.useCallback(
@@ -222,6 +226,31 @@ export function CanvasBoard({
   // Global move/up so a gesture keeps tracking even off the pressed element.
   React.useEffect(() => {
     const onMove = (e: PointerEvent) => {
+      // Keep tracked pointers current; a live two-finger pinch overrides
+      // everything else (pan/draw), zooming toward the fingers' midpoint.
+      if (pointers.current.has(e.pointerId))
+        pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (pinch.current && pointers.current.size >= 2) {
+        const [a, b] = [...pointers.current.values()];
+        const dist = Math.hypot(a.x - b.x, a.y - b.y);
+        const rect = containerRef.current?.getBoundingClientRect();
+        const midX = (a.x + b.x) / 2 - (rect?.left ?? 0);
+        const midY = (a.y + b.y) / 2 - (rect?.top ?? 0);
+        const prev = pinch.current;
+        const t = transformRef.current;
+        if (prev.dist > 0) {
+          const scale = clamp(t.scale * (dist / prev.dist), MIN_SCALE, MAX_SCALE);
+          const k = scale / t.scale;
+          // Anchor the midpoint while scaling, then follow its drift (two-finger pan).
+          setTransform({
+            x: midX - (midX - t.x) * k + (midX - prev.mid.x),
+            y: midY - (midY - t.y) * k + (midY - prev.mid.y),
+            scale,
+          });
+        }
+        pinch.current = { dist, mid: { x: midX, y: midY } };
+        return;
+      }
       const it = interaction.current;
       if (!it) return;
       if (it.type === "pan") {
@@ -252,7 +281,11 @@ export function CanvasBoard({
         if (d) setDraft({ ...d, points: [...d.points, pt] });
       }
     };
-    const onUp = () => {
+    const onUp = (e: PointerEvent) => {
+      pointers.current.delete(e.pointerId);
+      // A pinch needs two fingers; when one lifts, end it (the remaining finger
+      // stays idle until re-pressed, avoiding a jump back into panning).
+      if (pointers.current.size < 2) pinch.current = null;
       const it = interaction.current;
       interaction.current = null;
       if (!it) return;
@@ -274,14 +307,33 @@ export function CanvasBoard({
     };
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
     return () => {
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
     };
   }, [setTransform, updatePhoto, screenToCanvas, setDraft, commitDoodle]);
 
   // Surface press → draw a stroke (draw mode) or pan (otherwise).
   const onSurfacePointerDown = (e: React.PointerEvent) => {
+    // Track this pointer; a second finger on the surface starts a pinch-zoom,
+    // superseding any pan/draw already begun by the first.
+    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pointers.current.size >= 2) {
+      interaction.current = null;
+      if (draftRef.current) setDraft(null);
+      const [a, b] = [...pointers.current.values()];
+      const rect = containerRef.current?.getBoundingClientRect();
+      pinch.current = {
+        dist: Math.hypot(a.x - b.x, a.y - b.y),
+        mid: {
+          x: (a.x + b.x) / 2 - (rect?.left ?? 0),
+          y: (a.y + b.y) / 2 - (rect?.top ?? 0),
+        },
+      };
+      return;
+    }
     if (editable && drawMode) {
       const pt = screenToCanvas(e.clientX, e.clientY);
       interaction.current = { type: "draw" };
