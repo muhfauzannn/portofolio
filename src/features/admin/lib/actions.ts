@@ -168,6 +168,24 @@ export async function deleteExperience(id: string) {
   revalidateTag(CACHE_TAGS.experience, "max");
 }
 
+/**
+ * Persist a new ordering. `ids` is the full list top-to-bottom; each row's
+ * `position` is set to its index, so the first is shown first (highest
+ * priority) on the public site, which orders by ascending `position`.
+ */
+export async function reorderExperience(ids: string[]) {
+  await requireSession();
+  await Promise.all(
+    ids.map((id, i) =>
+      db
+        .update(schema.experienceItem)
+        .set({ position: i })
+        .where(eq(schema.experienceItem.id, id)),
+    ),
+  );
+  revalidateTag(CACHE_TAGS.experience, "max");
+}
+
 // --- Projects ---------------------------------------------------------------
 
 export type ProjectInput = {

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Plus, Save, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Loader2, Plus, Save, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { Field } from "@/features/admin/components/field";
 import { ImageUpload } from "@/features/admin/components/image-upload";
 import {
   deleteExperience,
+  reorderExperience,
   saveExperience,
   type ExperienceInput,
 } from "@/features/admin/lib/actions";
@@ -20,17 +21,51 @@ import type { ExperienceRow } from "@/features/admin/lib/data";
 import type { ExperienceRoleJson } from "@/db/schema";
 
 export function ExperienceEditor({ items }: { items: ExperienceRow[] }) {
+  const router = useRouter();
   const [drafts, setDrafts] = React.useState<ExperienceInput[]>([]);
+  // Local copy of the saved rows so reordering feels instant; kept in sync
+  // with the server rows whenever they change (after a refresh).
+  const [order, setOrder] = React.useState<ExperienceRow[]>(items);
+  const [reordering, setReordering] = React.useState(false);
+  React.useEffect(() => setOrder(items), [items]);
+
+  async function move(index: number, dir: -1 | 1) {
+    const target = index + dir;
+    if (target < 0 || target >= order.length) return;
+    const next = [...order];
+    [next[index], next[target]] = [next[target], next[index]];
+    setOrder(next);
+    setReordering(true);
+    try {
+      await reorderExperience(next.map((row) => row.id));
+      router.refresh();
+    } catch (err) {
+      setOrder(order); // revert on failure
+      toast.error(err instanceof Error ? err.message : "Reorder failed");
+    } finally {
+      setReordering(false);
+    }
+  }
 
   return (
     <div className="flex flex-col gap-4">
-      {items.map((row) => (
-        <ExperienceItemCard key={row.id} initial={row} />
+      <p className="text-sm text-muted-foreground">
+        Order top-to-bottom sets priority — the item at the top shows first on
+        the site.
+      </p>
+      {order.map((row, i) => (
+        <ExperienceItemCard
+          key={row.id}
+          initial={row}
+          onMoveUp={i > 0 ? () => move(i, -1) : undefined}
+          onMoveDown={i < order.length - 1 ? () => move(i, 1) : undefined}
+          reordering={reordering}
+        />
       ))}
       {drafts.map((draft, i) => (
         <ExperienceItemCard
           key={`draft-${i}`}
-          initial={{ ...draft, position: items.length + i }}
+          initial={{ ...draft, position: order.length + i }}
           onSaved={() => setDrafts((d) => d.filter((_, j) => j !== i))}
         />
       ))}
@@ -63,9 +98,15 @@ export function ExperienceEditor({ items }: { items: ExperienceRow[] }) {
 function ExperienceItemCard({
   initial,
   onSaved,
+  onMoveUp,
+  onMoveDown,
+  reordering,
 }: {
   initial: ExperienceInput;
   onSaved?: () => void;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
+  reordering?: boolean;
 }) {
   const router = useRouter();
   const [state, setState] = React.useState<ExperienceInput>(initial);
@@ -109,6 +150,37 @@ function ExperienceItemCard({
   return (
     <Card>
       <CardContent className="flex flex-col gap-4 py-5">
+        {(onMoveUp || onMoveDown) && (
+          <div className="flex items-center justify-between gap-2">
+            <span className="truncate text-sm font-medium text-muted-foreground">
+              {state.institution || "Untitled"}
+            </span>
+            <div className="flex shrink-0 gap-1">
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className="size-8"
+                onClick={onMoveUp}
+                disabled={!onMoveUp || reordering}
+                aria-label="Move up"
+              >
+                <ArrowUp className="size-4" />
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className="size-8"
+                onClick={onMoveDown}
+                disabled={!onMoveDown || reordering}
+                aria-label="Move down"
+              >
+                <ArrowDown className="size-4" />
+              </Button>
+            </div>
+          </div>
+        )}
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Institution">
             <Input
