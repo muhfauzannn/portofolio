@@ -118,13 +118,13 @@ export function SiteNav() {
             <TransitionLink
               href="/"
               aria-label="Home"
-              className="flex items-center gap-2 font-heading font-bold"
+              className="items-center gap-2 font-heading hidden sm:flex font-bold"
             >
               <Asterisk className="size-7 text-brand-lime" />
             </TransitionLink>
 
             <div className="flex items-center gap-1.5">
-              <Button size="pill" className="hidden sm:inline-flex" asChild>
+              <Button size="pill" asChild>
                 <a href={EMAIL}>Get in touch</a>
               </Button>
             </div>
