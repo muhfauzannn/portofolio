@@ -17,9 +17,10 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   addCanvasDoodle,
-  addCanvasPhoto,
+  createCanvasUploadUrl,
   deleteCanvasDoodle,
   deleteCanvasPhoto,
+  saveCanvasPhoto,
   updateCanvasPhoto,
 } from "@/features/canvas/lib/actions";
 import type { CanvasDoodle, CanvasPhoto } from "@/features/canvas/lib/queries";
@@ -358,12 +359,46 @@ export function CanvasBoard({
     zoomAt(rect.width / 2, rect.height / 2, factor);
   };
 
+  // Direct-to-R2 upload: sends the file straight from the browser to R2 via a
+  // presigned URL, bypassing Vercel's 4.5 MB function-body limit. HEIC/HEIF
+  // (iPhone) is transcoded to JPEG in-browser first, since the server never
+  // sees the bytes to convert them. Returns the stored public URL.
+  const uploadFileToR2 = async (file: File): Promise<string> => {
+    let blob: Blob = file;
+    let ext = file.name.includes(".")
+      ? file.name.split(".").pop()!.toLowerCase()
+      : file.type.split("/").pop() || "bin";
+    let contentType = file.type || "application/octet-stream";
+
+    const isHeic =
+      /^image\/hei[cf]$/i.test(file.type) || /\.(heic|heif)$/i.test(file.name);
+    if (isHeic) {
+      const { default: heic2any } = await import("heic2any");
+      const out = await heic2any({
+        blob: file,
+        toType: "image/jpeg",
+        quality: 0.9,
+      });
+      blob = Array.isArray(out) ? out[0] : out;
+      ext = "jpg";
+      contentType = "image/jpeg";
+    }
+
+    const { uploadUrl, url } = await createCanvasUploadUrl({ ext, contentType });
+    const res = await fetch(uploadUrl, {
+      method: "PUT",
+      headers: { "Content-Type": contentType },
+      body: blob,
+    });
+    if (!res.ok) throw new Error("Upload failed");
+    return url;
+  };
+
   async function handleUpload(file: File) {
     setUploading(true);
     try {
-      const fd = new FormData();
-      fd.append("file", file);
-      const created = await addCanvasPhoto(fd);
+      const imageUrl = await uploadFileToR2(file);
+      const created = await saveCanvasPhoto({ imageUrl });
       setPhotos((prev) => [...prev, created]);
       setSelected(created.id);
       toast.success("Photo added");
@@ -397,12 +432,8 @@ export function CanvasBoard({
     setPhotos((prev) => [...prev, temp]);
     setUploadingIds((prev) => new Set(prev).add(tempId));
     try {
-      const fd = new FormData();
-      fd.append("file", file);
-      fd.append("x", String(x));
-      fd.append("y", String(y));
-      fd.append("rotation", String(rotation));
-      const saved = await addCanvasPhoto(fd);
+      const imageUrl = await uploadFileToR2(file);
+      const saved = await saveCanvasPhoto({ imageUrl, x, y, rotation });
       // Preserve any edits the admin made to the preview while it uploaded.
       setPhotos((prev) =>
         prev.map((p) =>

@@ -1,4 +1,5 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { randomUUID } from "node:crypto";
 import convertHeic from "heic-convert";
 
@@ -85,4 +86,42 @@ export async function uploadToR2(
   );
 
   return `${publicBase}/${key}`;
+}
+
+/**
+ * Creates a short-lived presigned PUT URL so the browser can upload a file
+ * straight to R2, bypassing the serverless request-body limit (Vercel caps
+ * function bodies at 4.5 MB). The server never sees the bytes.
+ *
+ * Returns the `uploadUrl` to PUT to, the eventual public `url` (built from
+ * R2_PUBLIC_URL, safe to persist), and the `contentType` the client MUST send
+ * as the `Content-Type` header on the PUT — it's part of the signature.
+ *
+ * Note: HEIC/HEIF can't be transcoded here (no bytes server-side), so the
+ * client must convert to JPEG before requesting the URL.
+ */
+export async function createR2PresignedUpload({
+  keyPrefix,
+  ext,
+  contentType,
+}: {
+  keyPrefix: string;
+  ext: string;
+  contentType: string;
+}): Promise<{ uploadUrl: string; url: string; contentType: string }> {
+  const publicBase = required("R2_PUBLIC_URL").replace(/\/$/, "");
+  const safeExt = ext.toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
+  const key = `${keyPrefix}/${randomUUID()}.${safeExt}`;
+
+  const uploadUrl = await getSignedUrl(
+    getClient(),
+    new PutObjectCommand({
+      Bucket: required("R2_BUCKET"),
+      Key: key,
+      ContentType: contentType,
+    }),
+    { expiresIn: 60 * 5 },
+  );
+
+  return { uploadUrl, url: `${publicBase}/${key}`, contentType };
 }

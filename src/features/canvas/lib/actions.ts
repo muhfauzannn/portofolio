@@ -5,7 +5,7 @@ import { revalidateTag } from "next/cache";
 
 import { db, schema } from "@/db";
 import { CACHE_TAGS } from "@/lib/cache-tags";
-import { uploadToR2 } from "@/lib/r2";
+import { createR2PresignedUpload } from "@/lib/r2";
 // Shared auth guard — the CMS session module doubles as the app-wide guard.
 import { requireSession } from "@/features/admin/lib/session";
 import type {
@@ -13,20 +13,61 @@ import type {
   CanvasPhoto,
 } from "@/features/canvas/lib/queries";
 
+// Image types the browser can upload straight to R2. HEIC/HEIF are absent on
+// purpose — the client transcodes them to JPEG before requesting a URL, since
+// the server no longer sees the bytes to transcode them itself.
+const ALLOWED_UPLOAD_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+  "image/avif",
+]);
+
 /**
- * Uploads a photo to R2 and places it on the canvas. If the form carries an
- * `x`/`y` (a drag-and-drop drop point) the photo lands exactly there; otherwise
- * it drops on a ring around the origin — close to the centerpiece statement
- * (never far from the content) but off the text. Admin-only. Returns the created
- * row so the client can keep editing it.
+ * Step 1 of a direct-to-R2 upload: hands the browser a short-lived presigned
+ * PUT URL so it can upload the (possibly large) file itself, bypassing Vercel's
+ * 4.5 MB function-body limit. Admin-only. The client then calls
+ * `saveCanvasPhoto` with the returned public URL.
  */
-export async function addCanvasPhoto(formData: FormData): Promise<CanvasPhoto> {
+export async function createCanvasUploadUrl(input: {
+  ext: string;
+  contentType: string;
+}): Promise<{ uploadUrl: string; url: string; contentType: string }> {
   await requireSession();
-  const file = formData.get("file");
-  if (!(file instanceof File) || file.size === 0) {
-    throw new Error("No file provided");
+  if (!ALLOWED_UPLOAD_TYPES.has(input.contentType)) {
+    throw new Error("Unsupported image type");
   }
-  const imageUrl = await uploadToR2(file, "canvas");
+  return createR2PresignedUpload({
+    keyPrefix: "canvas",
+    ext: input.ext,
+    contentType: input.contentType,
+  });
+}
+
+/**
+ * Step 2 of a direct-to-R2 upload: records a photo already uploaded to R2 and
+ * places it on the canvas. If `x`/`y` are given (a drag-and-drop drop point) the
+ * photo lands exactly there; otherwise it drops on a ring around the origin —
+ * close to the centerpiece statement but off the text. Admin-only. Returns the
+ * created row so the client can keep editing it.
+ */
+export async function saveCanvasPhoto(input: {
+  imageUrl: string;
+  x?: number;
+  y?: number;
+  rotation?: number;
+}): Promise<CanvasPhoto> {
+  await requireSession();
+  const publicBase = process.env.R2_PUBLIC_URL?.replace(/\/$/, "");
+  if (
+    typeof input.imageUrl !== "string" ||
+    (publicBase && !input.imageUrl.startsWith(publicBase))
+  ) {
+    // Only accept URLs from our own R2 bucket — never store an arbitrary URL.
+    throw new Error("Invalid image URL");
+  }
+  const imageUrl = input.imageUrl;
 
   const existing = await db
     .select({ position: schema.canvasPhoto.position })
@@ -37,35 +78,24 @@ export async function addCanvasPhoto(formData: FormData): Promise<CanvasPhoto> {
     : 0;
 
   // Prefer an explicit drop point; else a ring (radius ~360–560) around origin.
-  const xRaw = formData.get("x");
-  const yRaw = formData.get("y");
-  const dropX = Number(xRaw);
-  const dropY = Number(yRaw);
   const hasDrop =
-    typeof xRaw === "string" &&
-    xRaw !== "" &&
-    typeof yRaw === "string" &&
-    yRaw !== "" &&
-    Number.isFinite(dropX) &&
-    Number.isFinite(dropY);
+    Number.isFinite(input.x ?? NaN) && Number.isFinite(input.y ?? NaN);
   const angle = Math.random() * Math.PI * 2;
   const radius = 360 + Math.random() * 200;
 
   // Rotation may be supplied by the client (so an optimistic preview matches the
   // saved photo exactly); otherwise pick a small random tilt.
-  const rotRaw = formData.get("rotation");
-  const rotation =
-    typeof rotRaw === "string" && rotRaw !== "" && Number.isFinite(Number(rotRaw))
-      ? Math.round(Number(rotRaw))
-      : Math.round((Math.random() - 0.5) * 16);
+  const rotation = Number.isFinite(input.rotation ?? NaN)
+    ? Math.round(input.rotation as number)
+    : Math.round((Math.random() - 0.5) * 16);
 
   const [row] = await db
     .insert(schema.canvasPhoto)
     .values({
       imageUrl,
       alt: "",
-      x: hasDrop ? Math.round(dropX) : Math.round(Math.cos(angle) * radius),
-      y: hasDrop ? Math.round(dropY) : Math.round(Math.sin(angle) * radius),
+      x: hasDrop ? Math.round(input.x as number) : Math.round(Math.cos(angle) * radius),
+      y: hasDrop ? Math.round(input.y as number) : Math.round(Math.sin(angle) * radius),
       width: 240,
       rotation,
       position: nextPos,
