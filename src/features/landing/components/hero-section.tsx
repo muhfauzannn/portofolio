@@ -3,7 +3,7 @@
 import * as React from "react";
 // import type { CSSProperties } from "react";
 import Image from "next/image";
-import { Download, ImageIcon, Mail } from "lucide-react";
+import { ArrowRight, Download, ImageIcon, Mail } from "lucide-react";
 import type { IconType } from "react-icons";
 import { SiGithub, SiInstagram } from "react-icons/si";
 import { LuLinkedin } from "react-icons/lu";
@@ -22,6 +22,7 @@ import {
   type HeroPhoto,
   type HeroSocial,
 } from "@/features/landing/lib/queries";
+import Link from "next/link";
 
 const EMAIL = "mailto:fauzannmuhh@gmail.com";
 
@@ -88,7 +89,7 @@ export function HeroSection({
             <p className="mx-auto font-heading mt-6 max-w-xl text-base text-muted-foreground text-pretty sm:text-lg lg:mx-0">
               This is my portfolio, where I transform caffeine and late-night
               coding into actual, working solutions. Take a look around, and
-              don't hesitate to reach out.
+              don&apos;t hesitate to reach out.
             </p>
 
             {/* Social links + resume */}
@@ -152,8 +153,14 @@ export function HeroSection({
         </div>
 
         {/* Stacked printed photos — click to shuffle through them */}
-        <Reveal delay={180}>
+        <Reveal delay={180} className="relative">
           <PhotoStack photos={photos} />
+          <Link
+            className="absolute font-script hover:text-brand-purple duration-500 text-2xl left-1/2 -translate-x-1/2 -bottom-12 flex items-center gap-2 "
+            href={"/canvas"}
+          >
+            Click to explore my gallery
+          </Link>
         </Reveal>
       </div>
 

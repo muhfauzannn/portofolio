@@ -22,15 +22,12 @@ import {
   deleteCanvasPhoto,
   updateCanvasPhoto,
 } from "@/features/canvas/lib/actions";
-import type {
-  CanvasDoodle,
-  CanvasPhoto,
-} from "@/features/canvas/lib/queries";
+import type { CanvasDoodle, CanvasPhoto } from "@/features/canvas/lib/queries";
 
 const MIN_SCALE = 0.2;
 const MAX_SCALE = 4;
 const CENTER_TEXT =
-  "this is not my photograph portofolio, it just me and my memories";
+  "this not my photography portofolio, it just me and my memories";
 
 // Freehand pen palette (brand tokens as hex, stored per stroke).
 const DRAW_COLORS = ["#1a1a1a", "#6544ff", "#84ff44"];
@@ -49,7 +46,14 @@ type Interaction =
   | { type: "pan"; sx: number; sy: number; ox: number; oy: number }
   | { type: "drag"; id: string; sx: number; sy: number; px: number; py: number }
   | { type: "resize"; id: string; sx: number; pw: number }
-  | { type: "rotate"; id: string; cx: number; cy: number; a0: number; pr: number }
+  | {
+      type: "rotate";
+      id: string;
+      cx: number;
+      cy: number;
+      a0: number;
+      pr: number;
+    }
   | { type: "draw" };
 
 const clamp = (v: number, lo: number, hi: number) =>
@@ -140,16 +144,19 @@ export function CanvasBoard({
   const interaction = React.useRef<Interaction | null>(null);
 
   // Screen (client) coords → canvas coords, using the live transform.
-  const screenToCanvas = React.useCallback((clientX: number, clientY: number) => {
-    const rect = containerRef.current?.getBoundingClientRect();
-    const t = transformRef.current;
-    const left = rect?.left ?? 0;
-    const top = rect?.top ?? 0;
-    return {
-      x: (clientX - left - t.x) / t.scale,
-      y: (clientY - top - t.y) / t.scale,
-    };
-  }, []);
+  const screenToCanvas = React.useCallback(
+    (clientX: number, clientY: number) => {
+      const rect = containerRef.current?.getBoundingClientRect();
+      const t = transformRef.current;
+      const left = rect?.left ?? 0;
+      const top = rect?.top ?? 0;
+      return {
+        x: (clientX - left - t.x) / t.scale,
+        y: (clientY - top - t.y) / t.scale,
+      };
+    },
+    [],
+  );
 
   // Center the canvas origin (0,0) on screen once we can measure the viewport.
   React.useLayoutEffect(() => {
@@ -196,7 +203,10 @@ export function CanvasBoard({
   const commitDoodle = React.useCallback(
     (d: Draft) => {
       const tempId = `temp-${Date.now()}`;
-      setDoodles((prev) => [...prev, { id: tempId, ...d, position: prev.length }]);
+      setDoodles((prev) => [
+        ...prev,
+        { id: tempId, ...d, position: prev.length },
+      ]);
       void addCanvasDoodle(d)
         .then((saved) =>
           setDoodles((prev) => prev.map((x) => (x.id === tempId ? saved : x))),
@@ -387,8 +397,9 @@ export function CanvasBoard({
     if (files.length === 0) return;
     const base = screenToCanvas(e.clientX, e.clientY);
     // Cascade multiple files slightly so they don't stack exactly.
-    files.forEach((file, i) =>
-      void uploadAt(file, { x: base.x + i * 28, y: base.y + i * 28 }),
+    files.forEach(
+      (file, i) =>
+        void uploadAt(file, { x: base.x + i * 28, y: base.y + i * 28 }),
     );
   };
 
@@ -504,7 +515,9 @@ export function CanvasBoard({
               }
               className={cn(
                 "absolute -translate-x-1/2 -translate-y-1/2 rounded-[2px] bg-brand-cream p-2.5 pb-8 shadow-2xl shadow-foreground/25 ring-1 ring-foreground/10",
-                editable && !drawMode && "[cursor:grab] active:[cursor:grabbing]",
+                editable &&
+                  !drawMode &&
+                  "[cursor:grab] active:[cursor:grabbing]",
                 drawMode && "pointer-events-none",
                 isSelected && "outline-2 outline-brand-purple",
               )}
@@ -575,7 +588,13 @@ export function CanvasBoard({
         <svg
           aria-hidden
           className="pointer-events-none absolute"
-          style={{ left: -8000, top: -8000, width: 16000, height: 16000, zIndex: 500 }}
+          style={{
+            left: -8000,
+            top: -8000,
+            width: 16000,
+            height: 16000,
+            zIndex: 500,
+          }}
           viewBox="-8000 -8000 16000 16000"
         >
           {doodles.map((d) => (

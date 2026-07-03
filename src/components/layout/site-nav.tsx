@@ -26,11 +26,11 @@ const EMAIL = "mailto:fauzannmuhh@gmail.com";
 // as plain <a>; "/canvas" starts with "/" so MenuColumn routes it through the
 // page transition.
 const SECTIONS: NavLink[] = [
-  { label: "Home", href: "#top" },
-  { label: "About", href: "#about" },
-  { label: "Experience", href: "#experience" },
-  { label: "Projects", href: "#projects" },
-  { label: "Skills", href: "#skills" },
+  { label: "Home", href: "/" },
+  { label: "About", href: "/#about" },
+  { label: "Experience", href: "/#experience" },
+  { label: "Projects", href: "/#projects" },
+  { label: "Skills", href: "/#skills" },
   { label: "Gallery", href: "/canvas" },
 ];
 
