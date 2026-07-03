@@ -3,7 +3,7 @@
 import * as React from "react";
 // import type { CSSProperties } from "react";
 import Image from "next/image";
-import { ArrowRight, Download, ImageIcon, Mail } from "lucide-react";
+import { Download, ImageIcon, Mail } from "lucide-react";
 import type { IconType } from "react-icons";
 import { SiGithub, SiInstagram } from "react-icons/si";
 import { LuLinkedin } from "react-icons/lu";
@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 // import { Badge } from "@/components/ui/badge";
 // import { Marquee } from "@/components/ui/marquee";
 import { Reveal } from "@/components/motion/reveal";
+import { TransitionLink } from "@/components/motion/transition-link";
 import TextType from "@/components/motion/TextType";
 import {
   // SHOWCASE,
@@ -155,12 +156,12 @@ export function HeroSection({
         {/* Stacked printed photos — click to shuffle through them */}
         <Reveal delay={180} className="relative">
           <PhotoStack photos={photos} />
-          <Link
+          <TransitionLink
             className="absolute font-script hover:text-brand-purple duration-500 text-2xl left-1/2 -translate-x-1/2 -bottom-12 flex items-center gap-2 "
             href={"/canvas"}
           >
             Click to explore my gallery
-          </Link>
+          </TransitionLink>
         </Reveal>
       </div>
 
