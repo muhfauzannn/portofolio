@@ -157,7 +157,7 @@ export function HeroSection({
         <Reveal delay={180} className="relative">
           <PhotoStack photos={photos} />
           <TransitionLink
-            className="absolute font-script hover:text-brand-purple duration-500 text-2xl left-1/2 -translate-x-1/2 -bottom-12 max-md:-bottom-16 flex items-center gap-2 "
+            className="absolute font-script hover:text-brand-purple duration-500 text-2xl left-1/2 -translate-x-1/2 -bottom-12 max-md:-bottom-20 flex items-center gap-2 "
             href={"/canvas"}
           >
             Click to explore my gallery
