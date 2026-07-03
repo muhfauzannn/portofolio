@@ -21,8 +21,9 @@ export async function generateMetadata({
   const { slug } = await params;
   const project = await getProjectBySlug(slug);
   if (!project) return {};
+  // Title falls through the root template → "<name> — Fauzan's Portofolio".
   return {
-    title: `${project.name} — Muhammad Fauzan`,
+    title: project.name,
     description: project.tagline,
   };
 }

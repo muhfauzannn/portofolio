@@ -79,10 +79,42 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// Resolves relative metadata URLs (like the OG image) to absolute ones. Set
+// NEXT_PUBLIC_SITE_URL to your production domain; falls back to localhost.
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
 export const metadata: Metadata = {
-  title: "Creative Developer Toolkit — Design System",
+  metadataBase: new URL(siteUrl),
+  // `default` is used by the home page; `template` suffixes every child page
+  // that sets its own title (e.g. "Projects — Fauzan's Portofolio").
+  title: {
+    default: "Fauzan's Portofolio",
+    template: "%s — Fauzan's Portofolio",
+  },
   description:
-    "A bold, brutalist-polished design system for creative developers.",
+    "The portfolio of Muhammad Fauzan — Software Engineer, Web Developer, and DevOps Engineer.",
+  openGraph: {
+    title: "Fauzan's Portofolio",
+    description:
+      "The portfolio of Muhammad Fauzan — Software Engineer, Web Developer, and DevOps Engineer.",
+    siteName: "Fauzan's Portofolio",
+    type: "website",
+    images: [
+      {
+        url: "/meta.png",
+        width: 1268,
+        height: 761,
+        alt: "Fauzan's Portofolio",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Fauzan's Portofolio",
+    description:
+      "The portfolio of Muhammad Fauzan — Software Engineer, Web Developer, and DevOps Engineer.",
+    images: ["/meta.png"],
+  },
 };
 
 export default function RootLayout({

@@ -45,6 +45,10 @@ export function TransitionProvider({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  // `isPending` stays true until the pushed route is actually ready to render
+  // (RSC payload fetched + Suspense resolved), so we can hold the cover until
+  // the destination content exists rather than revealing on a timer.
+  const [isPending, startTransition] = React.useTransition();
 
   const overlayRef = React.useRef<HTMLDivElement>(null);
   const colsRef = React.useRef<HTMLDivElement[]>([]);
@@ -86,22 +90,33 @@ export function TransitionProvider({
     );
   }, []);
 
-  // Run ENTER only after a real navigation commits (pathname changed).
+  // Run ENTER only once the pushed route has finished loading. `pendingEnter`
+  // is armed when the push starts; the transition flips `isPending` true during
+  // the fetch and back to false when the destination is ready to paint. We wait
+  // two frames so the new content paints under the cover before we lift it.
   React.useEffect(() => {
-    if (!pendingEnter.current) return;
+    if (!pendingEnter.current || isPending) return;
     pendingEnter.current = false;
-    runEnter();
-  }, [pathname, runEnter]);
+    if (failsafe.current) clearTimeout(failsafe.current);
+    const raf = requestAnimationFrame(() => requestAnimationFrame(runEnter));
+    return () => cancelAnimationFrame(raf);
+  }, [isPending, runEnter]);
 
   const navigate = React.useCallback(
     (href: string) => {
       if (animating.current || href === pathname) return;
       animating.current = true;
-      pendingEnter.current = true;
 
       // LEAVE — columns rise from the bottom to cover the screen, then navigate.
       gsap.set(overlayRef.current, { pointerEvents: "auto" });
-      const tl = gsap.timeline({ onComplete: () => router.push(href) });
+      const tl = gsap.timeline({
+        onComplete: () => {
+          // Arm ENTER, then push inside a transition so `isPending` tracks the
+          // destination's real load state (not just the route commit).
+          pendingEnter.current = true;
+          startTransition(() => router.push(href));
+        },
+      });
       tl.fromTo(
         colsRef.current,
         { yPercent: 100 },
@@ -113,16 +128,16 @@ export function TransitionProvider({
         "-=0.35",
       );
 
-      // Safety net: if the route never commits, still reveal instead of hanging.
+      // Safety net: if loading hangs, reveal anyway rather than trapping the user.
       if (failsafe.current) clearTimeout(failsafe.current);
       failsafe.current = setTimeout(() => {
         if (pendingEnter.current) {
           pendingEnter.current = false;
           runEnter();
         }
-      }, 1200);
+      }, 6000);
     },
-    [pathname, router, runEnter],
+    [pathname, router, startTransition, runEnter],
   );
 
   return (

@@ -10,18 +10,25 @@ import { NextResponse, type NextRequest } from "next/server";
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Belt-and-suspenders: tag every /admin response so crawlers never index it,
+  // even if one ever slips past the per-page `robots` metadata / robots.txt.
+  const noindex = (res: NextResponse) => {
+    res.headers.set("X-Robots-Tag", "noindex, nofollow");
+    return res;
+  };
+
   // The login page must stay reachable while logged out.
   if (pathname === "/admin/login") {
-    return NextResponse.next();
+    return noindex(NextResponse.next());
   }
 
   const sessionCookie = getSessionCookie(request);
   if (!sessionCookie) {
     const loginUrl = new URL("/admin/login", request.url);
-    return NextResponse.redirect(loginUrl);
+    return noindex(NextResponse.redirect(loginUrl));
   }
 
-  return NextResponse.next();
+  return noindex(NextResponse.next());
 }
 
 export const config = {
