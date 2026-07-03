@@ -188,3 +188,22 @@ export const skill = pgTable("skill", {
   logoUrl: text("logo_url").notNull().default(""),
   position: integer("position").notNull().default(0),
 });
+
+/**
+ * Free-form gallery ("canvas") photos — an infinite, Figma-style board. Each
+ * photo carries an absolute x/y in canvas space plus a display width and a
+ * resting rotation. Admins arrange them by dragging on /canvas; visitors only
+ * pan/zoom. `position` is the paint/z order.
+ */
+export const canvasPhoto = pgTable("canvas_photo", {
+  id: text("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  imageUrl: text("image_url").notNull().default(""),
+  alt: text("alt").notNull().default(""),
+  x: integer("x").notNull().default(0),
+  y: integer("y").notNull().default(0),
+  width: integer("width").notNull().default(240),
+  rotation: integer("rotation").notNull().default(0),
+  position: integer("position").notNull().default(0),
+});

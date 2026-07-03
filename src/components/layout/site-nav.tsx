@@ -22,13 +22,16 @@ type NavLink = {
 
 const EMAIL = "mailto:fauzannmuhh@gmail.com";
 
-// In-page sections (see the anchor ids on each feature's section).
+// In-page sections (anchors) plus the standalone Gallery route. Anchors render
+// as plain <a>; "/canvas" starts with "/" so MenuColumn routes it through the
+// page transition.
 const SECTIONS: NavLink[] = [
   { label: "Home", href: "#top" },
   { label: "About", href: "#about" },
   { label: "Experience", href: "#experience" },
   { label: "Projects", href: "#projects" },
   { label: "Skills", href: "#skills" },
+  { label: "Gallery", href: "/canvas" },
 ];
 
 const CONNECT: NavLink[] = [

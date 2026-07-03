@@ -9,6 +9,7 @@ export const CACHE_TAGS = {
   experience: "experience",
   projects: "projects",
   skills: "skills",
+  canvas: "canvas",
 } as const;
 
 export type CacheTag = (typeof CACHE_TAGS)[keyof typeof CACHE_TAGS];
