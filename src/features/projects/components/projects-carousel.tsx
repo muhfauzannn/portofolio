@@ -288,7 +288,7 @@ function ProjectVisual({ project }: { project: Project }) {
   return (
     <div className="relative aspect-16/10 w-full overflow-hidden bg-brand-charcoal">
       {project.image ? (
-        <Image
+        <img
           src={project.image}
           alt={project.name}
           fill
