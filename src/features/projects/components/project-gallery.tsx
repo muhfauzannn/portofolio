@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { Image } from "@/components/ui/image";
 
 import { cn } from "@/lib/utils";
 import { Reveal } from "@/components/motion/reveal";

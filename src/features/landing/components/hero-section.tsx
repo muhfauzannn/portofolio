@@ -2,7 +2,7 @@
 
 import * as React from "react";
 // import type { CSSProperties } from "react";
-import Image from "next/image";
+import { Image } from "@/components/ui/image";
 import { Download, ImageIcon, Mail } from "lucide-react";
 import type { IconType } from "react-icons";
 import { SiGithub, SiInstagram } from "react-icons/si";

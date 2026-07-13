@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { Image } from "@/components/ui/image";
 import { Reveal } from "@/components/motion/reveal";
 import { type AboutContent } from "@/features/about/data/about";
 

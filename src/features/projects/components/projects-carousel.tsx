@@ -1,11 +1,11 @@
 "use client";
 
 import * as React from "react";
-import Image from "next/image";
 import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Image } from "@/components/ui/image";
 import { TransitionLink } from "@/components/motion/transition-link";
 import { type Project } from "@/features/projects/data/projects";
 
@@ -288,13 +288,12 @@ function ProjectVisual({ project }: { project: Project }) {
   return (
     <div className="relative aspect-16/10 w-full overflow-hidden bg-brand-charcoal">
       {project.image ? (
-        <img
+        <Image
           src={project.image}
           alt={project.name}
           fill
           draggable={false}
           sizes="(max-width: 768px) 72vw, 540px"
-          className="object-cover"
         />
       ) : (
         <div className="flex size-full flex-col justify-between bg-linear-to-br from-brand-purple/40 via-brand-charcoal to-brand-charcoal p-5">

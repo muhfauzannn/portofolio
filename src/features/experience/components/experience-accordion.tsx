@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import Image from "next/image";
+import { Image } from "@/components/ui/image";
 
 import { cn } from "@/lib/utils";
 import { Reveal } from "@/components/motion/reveal";
@@ -37,6 +37,7 @@ function LogoChip({
           alt={item.logo.alt}
           width={64}
           height={64}
+          wrapperClassName="size-full"
           className="size-full object-contain p-2"
         />
       ) : (

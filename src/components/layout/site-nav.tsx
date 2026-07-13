@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import Image from "next/image";
+import { Image } from "@/components/ui/image";
 import { ArrowUpRight, Asterisk, Mail, X } from "lucide-react";
 import type { IconType } from "react-icons";
 import { SiGithub, SiInstagram } from "react-icons/si";
